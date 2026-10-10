@@ -1,6 +1,6 @@
 # VSV — Veille Solidaire de Vierzon
 
-Une application locale pour préparer les projets et rédiger les comptes rendus de réunion de l’association, sans compte ni service payant.
+Une application locale pour préparer les projets, rédiger les comptes rendus de réunion et les procès-verbaux d’assemblée générale de l’association, sans compte ni service payant.
 
 ## 1. Lancer l’application
 
@@ -15,7 +15,7 @@ Utilisez toujours la même adresse, le même navigateur et son profil habituel. 
 
 ## 2. Créer et retrouver une fiche
 
-L’application s’ouvre sur **Accueil**, avec vos statistiques et vos trois projets les plus récemment modifiés. Le menu latéral permet de revenir à **Accueil** ou de rejoindre **Fiches projet** et **Comptes rendus** ; sur téléphone, ces accès se trouvent au-dessus du contenu. Les autres catégories sont indiquées « À venir » et ne sont pas encore utilisables.
+L’application s’ouvre sur **Accueil**, avec vos statistiques et vos trois projets les plus récemment modifiés. Le menu latéral permet de revenir à **Accueil** ou de rejoindre **Fiches projet**, **Comptes rendus** et **Procès-verbal** ; sur téléphone, ces accès se trouvent au-dessus du contenu. Les autres catégories sont indiquées « À venir » et ne sont pas encore utilisables.
 
 Cliquez sur **Créer une fiche projet**, puis saisissez son nom. Le reste est facultatif. Les modifications sont enregistrées automatiquement lorsque les champs sont valides. L’indicateur confirme l’enregistrement ; un message d’erreur signifie que les changements ne sont pas enregistrés. Cliquez sur **Enregistrer maintenant** pour réessayer.
 
@@ -31,7 +31,7 @@ Depuis la fiche ou son aperçu, cliquez sur **Exporter en PDF**. Dans la fenêtr
 
 Cliquez régulièrement sur **Télécharger la sauvegarde JSON**. Conservez le fichier téléchargé dans un dossier facile à retrouver, éventuellement sur une clé USB. Il contient vos projets, vos comptes rendus, leurs notes et les coordonnées saisies : choisissez un endroit adapté à ces informations personnelles.
 
-Pour restaurer, cliquez sur **Importer une sauvegarde** depuis Mes projets ou Comptes rendus et choisissez le fichier JSON. Confirmez l’import. Les fiches existantes restent intactes : un identifiant déjà présent donne une nouvelle copie portant la mention « importé ». Un fichier invalide est refusé sans changer vos données. Les nouvelles sauvegardes portent le numéro de version 2 et contiennent les projets et les comptes rendus. Les sauvegardes de projets de version 1 restent importables : elles ajoutent des projets sans supprimer les comptes rendus. Une ancienne version de l’application ne sait pas lire le nouveau format ; utilisez la version à jour et téléchargez une sauvegarde avant toute mise à jour.
+Pour restaurer, cliquez sur **Importer une sauvegarde** depuis un des trois modules et choisissez le fichier JSON. Confirmez l’import. Les fiches existantes restent intactes : un identifiant déjà présent donne une nouvelle copie portant la mention « importé ». Un fichier invalide est refusé sans changer vos données. Les nouvelles sauvegardes portent le numéro de version 3 et contiennent les projets, les comptes rendus et les PV. Les anciennes sauvegardes V1 (projets) et V2 (projets et réunions) restent importables sans supprimer les PV ni les autres documents existants. Une ancienne version de l’application ne sait pas lire le nouveau format ; utilisez la version à jour et téléchargez une sauvegarde avant toute mise à jour.
 
 En cas d’échec de stockage, une sauvegarde JSON depuis l’éditeur peut aussi conserver les changements valides de la fiche ouverte. Une saisie invalide doit être corrigée avant sauvegarde. Si les données déjà présentes sont illisibles, l’application bloque les écritures pour les préserver : ne les effacez pas avant d’avoir demandé de l’aide.
 
@@ -43,7 +43,7 @@ Il n’y a ni compte, ni partage synchronisé, ni modification simultanée. Évi
 
 ## 5. Évolutions possibles
 
-Budgets plus détaillés, plannings de bénévoles, fiches techniques, bilans, courriers, convocations et procès-verbaux d’assemblée générale, puis stockage partagé et comptes avec rôles. Les données des projets et des réunions sont séparées de leurs documents pour pouvoir être réutilisées. Ces fonctionnalités ne sont pas implémentées dans cette version.
+Budgets plus détaillés, plannings de bénévoles, fiches techniques, bilans, courriers, convocations, puis stockage partagé et comptes avec rôles. Les données des projets et des réunions sont séparées de leurs documents pour pouvoir être réutilisées. Ces fonctionnalités ne sont pas implémentées dans cette version.
 
 ## Repères techniques et vérifications
 
@@ -51,15 +51,19 @@ Budgets plus détaillés, plannings de bénévoles, fiches techniques, bilans, c
 - `src/meeting-model.js` : informations de réunion, participants, ordre du jour, validations et duplication.
 - `src/meetings.js` : liste et rédaction des comptes rendus.
 - `src/meeting-document.js` : présentation fidèle, paragraphes, listes et actions.
-- `src/backup.js` : sauvegarde commune V2 et import des sauvegardes V1.
-- `src/pdf.js` : export via impression, partagé entre les deux documents.
+- `src/pv-model.js` : données d’AG, instantanés, ordre annoncé et duplication de structure.
+- `src/pv-rules.js` : contrôles de dates civiles, quorum, pouvoirs et votes.
+- `src/pv.js` : préparation et rédaction des PV.
+- `src/pv-document.js` : aperçu et document A4 des PV.
+- `src/backup.js` : sauvegarde commune V3 et import des sauvegardes V1/V2.
+- `src/pdf.js` : export via impression, partagé entre les trois types de documents.
 - `src/storage.js` : lecture et écriture locales, erreurs propagées à l’interface.
 - `src/app.js` : interface et parcours de saisie.
 - `src/document.js` : présentation du document et échappement des textes.
 - `src/style.css` : présentation responsive et styles d’impression.
 - `server.js` : serveur local, sans dépendance.
 
-Exécuter `npm test` pour les 22 tests automatiques de données, de sauvegardes compatibles, de PDF et de chemins Windows/Linux. Les parcours ont également été vérifiés dans Chromium : création, modification, rechargement, duplication, suppression confirmée ou annulée, lignes budgétaires, centimes, téléchargement/import JSON, import invalide, accents, aperçu, échec de stockage simulé et largeur mobile. Windows, macOS, Safari et Firefox n’ont pas été testés dans cet environnement Linux.
+Exécuter `npm test` pour les 41 tests automatiques de données, de sauvegardes compatibles, de PDF et de chemins Windows/Linux. Les parcours ont également été vérifiés dans Chromium : création, modification, rechargement, duplication, suppression confirmée ou annulée, lignes budgétaires, centimes, téléchargement/import JSON, import invalide, accents, aperçu, échec de stockage simulé et largeur mobile. Windows, macOS, Safari et Firefox n’ont pas été testés dans cet environnement Linux.
 
 Le PDF multipage a été généré et son contenu contrôlé dans Chromium sous Linux ; le bouton d’export et le chargement du logo ont été vérifiés. La fenêtre native « Microsoft Print to PDF » sous Windows n’a pas pu être testée ici.
 
@@ -75,12 +79,32 @@ La page d’accueil et le menu ont été vérifiés dans Chromium sur ordinateur
 6. **Aperçu** présente le document sans perdre les dernières notes. **Exporter en PDF** ouvre la même fenêtre d’impression que pour les projets : choisissez **Enregistrer au format PDF** ou **Microsoft Print to PDF**, en A4. Les notes des champs facultatifs vides sont omises et les documents non finalisés portent une mention de travail. La numérotation suit toujours l’ordre de vos points.
 7. **Finaliser** signale les points encore « À aborder » ou « En cours ». Vous pouvez les vérifier, annuler, ou finaliser explicitement malgré ces points. Après confirmation et enregistrement réussi, le compte rendu est en lecture seule. **Rouvrir pour modifier** demande confirmation et le replace « En cours ». « Finalisé » n’est pas une approbation officielle, et ce document n’est pas un procès-verbal d’assemblée générale.
 8. Depuis la liste, **Dupliquer** propose la copie complète (nouveau brouillon) ou **Reprendre uniquement la structure**. Cette deuxième option conserve les titres de points, le lieu et les personnes animant/rédigeant, mais vide les notes, décisions, actions, motifs, dates, horaires et participants ; les points reviennent à « À aborder ». L’original reste inchangé.
-9. **Télécharger la sauvegarde JSON** sauvegarde tous les projets et tous les comptes rendus, quel que soit le module utilisé. L’import ajoute les documents et transforme les doublons en copies sans écrasement. Téléchargez régulièrement ce fichier ; un PDF ne permet pas de restaurer les champs modifiables.
+9. **Télécharger la sauvegarde JSON** sauvegarde tous les projets, tous les comptes rendus et tous les PV, quel que soit le module utilisé. L’import ajoute les documents et transforme les doublons en copies sans écrasement. Téléchargez régulièrement ce fichier ; un PDF ne permet pas de restaurer les champs modifiables.
 
-Les projets déjà présents sont lus sans manipulation et leur stockage passe au format commun lors du prochain enregistrement réussi. La sauvegarde reste locale au navigateur, au profil et à l’appareil. Évitez plusieurs fenêtres d’édition et les anciennes versions de l’application : il n’y a pas de synchronisation ni de gestion de conflits. Les convocations et les procès-verbaux d’AG ne sont pas développés.
+Les projets déjà présents sont lus sans manipulation et leur stockage passe au format commun lors du prochain enregistrement réussi. La sauvegarde reste locale au navigateur, au profil et à l’appareil. Évitez plusieurs fenêtres d’édition et les anciennes versions de l’application : il n’y a pas de synchronisation ni de gestion de conflits. Les convocations ne sont pas développées. Les PV disposent de leur section distincte.
 
 ### Vérifications du module
 
 Les parcours ont été exécutés dans Chromium sous Linux : projet historique au format V1 conservé et modifiable, compte rendu créé/modifié, notes retrouvées après rechargement, fermeture réelle de Chromium et réouverture du même profil, ajout de noms avec Entrée, homonymes, états et réordonnement, suppression confirmée/annulée, masquage des notes sans perte, aperçu, sections repliées, deux duplications, finalisation et réouverture, recherche, échec de stockage, import V1/V2 et fichier invalide. La présentation a aussi été vérifiée en largeur mobile et dans un PDF A4 de 21 pages contenant 130 paragraphes et 65 actions : fin du texte présente, dernière action présente, notes masquées absentes et aucune page vide. Le bouton PDF a été testé ; la fenêtre native d’impression sous Windows n’est pas testable dans cet environnement Linux.
 
 Les tests navigateur reproductibles sont dans `tests/browser/` ; voir `tests/README.md`. Les limites générales de navigateur et de multi-fenêtres restent celles décrites plus haut.
+
+## Procès-verbal d’assemblée générale : mode d’emploi
+
+1. Ouvrez **Procès-verbal**, puis **Créer un procès-verbal**. Le formulaire apparaît immédiatement, avec la date du jour modifiable. Choisissez AGO ou AGE, première ou seconde convocation. Complétez progressivement les dates, le lieu, l’effectif des adhérents à jour et le bureau de séance. Un brouillon incomplet peut être enregistré.
+2. Saisissez le nombre de présents votants immédiatement ; les noms peuvent venir ensuite. Entrez les noms avec **Entrée**. Ajoutez les pouvoirs et confirmez la cotisation du mandant. Si le nom du mandataire n’est pas encore dans la liste, sa présence doit être confirmée explicitement. Les pouvoirs en anomalie ne sont pas retenus automatiquement ; corrigez les doublons, mandataires absents et dépassements.
+3. Consultez les contrôles près du formulaire. Dans **Règles utilisées**, confirmez les interprétations nécessaires et leur justification : représentés dans le quorum, limite de pouvoirs AGE et délais de seconde convocation. Sans confirmation nécessaire, le résultat reste **À vérifier**. Les délais sont une différence de dates civiles (date initiale exclue, date de l’AG incluse), sans ajout de jours francs. Sur seconde convocation, le quorum est **non exigé**, mais les délais et majorités restent à contrôler.
+4. Ajoutez et réordonnez l’ordre du jour annoncé, puis **Commencer la rédaction du PV**. La copie de référence est conservée. Les nouveaux sujets sont par défaut ajoutés en séance ; leur origine reste modifiable. Une correction explicite de la copie annoncée demande un motif et conserve la version précédente dans l’historique.
+5. Saisissez les discussions, décisions et actions dans chaque point. Les zones se replient sans perte de texte. Pour **Non discuté** ou **Reporté**, choisissez si les notes conservées doivent apparaître dans le document. Les propositions de points AGO/AGE sont facultatives, modifiables et ne constituent aucune adoption.
+6. Ajoutez les résolutions et saisissez le texte exact, les voix disponibles et chaque catégorie de vote. Un champ vide n’est pas zéro. Le bouton de mise à zéro concerne uniquement les catégories encore vides. Si des voix ne participent pas, indiquez-le explicitement avec l’aide proposée. Les règles et l’effectif au moment du vote sont conservés avec celui-ci ; les changements ultérieurs de présence ne modifient pas les votes antérieurs. Notez arrivées, départs et déports dans le champ prévu. Les élections disposent de candidats, résultats et règle de scrutin propres, avec une conclusion saisie par le rédacteur : aucun élu n’est inventé.
+7. Complétez la clôture et les signataires. Les personnes de séance sont proposées une fois, puis restent modifiables. **Aperçu** montre les données réelles. **Imprimer / Enregistrer en PDF** ouvre la fenêtre du navigateur : choisissez un fichier PDF, le format A4 et désactivez les en-têtes/pieds de page du navigateur si nécessaire. Une annexe facultative présente les noms et pouvoirs.
+8. **Finaliser** signale les contrôles incomplets ou négatifs et les points encore en attente. Une finalisation explicite verrouille la saisie ; **Rouvrir pour modifier** la réactive après confirmation. Finalisé ne signifie ni approuvé, ni juridiquement certifié, ni signé. Les emplacements de signature restent vierges.
+9. **Dupliquer** prépare une nouvelle AG avec les titres de points et les règles copiées, mais sans dates, effectif, personnes, pouvoirs, notes, votes ou signatures. Renseignez l’effectif à nouveau et vérifiez les règles adaptées à cette nouvelle AG. Téléchargez régulièrement la sauvegarde JSON commune ; un PDF ne restaure pas le formulaire.
+
+### Vérifications et limites des PV
+
+Les règles implémentées viennent des articles 10/11 tels que fournis dans la demande. Les détails signalés comme ambigus nécessitent votre confirmation justifiée ; l’application ne certifie pas globalement la régularité de l’assemblée. Les majorités binaires excluent abstentions, blancs et nuls des suffrages exprimés ; aucune voix prépondérante n’est appliquée. Un scrutin particulier nécessite sa règle et sa conclusion explicites.
+
+Les 41 tests Node vérifient notamment les seuils 80/81 adhérents, les deux tiers exacts, les égalités, les pouvoirs excessifs, les dates civiles, les secondes convocations, les instantanés et les imports V1/V2/V3. Dans Chromium sous Linux, les parcours AGO/AGE, rédaction, notes conservées, duplication, finalisation/réouverture, imports, erreur de stockage et affichage mobile ont été exécutés. Un profil a été fermé puis rouvert réellement. Un PV fictif A4 de **26 pages** a été généré : fin du texte, dernières résolutions et annexe présentes, notes masquées absentes, aucune page vide. Les projets historiques et les comptes rendus restent accessibles et modifiables.
+
+La fenêtre native d’impression Windows et les navigateurs Safari/Firefox n’ont pas été testés ici. Il n’y a pas de signature électronique, de convocations automatiques, de certification juridique ni de travail simultané. Les contrôles visibles et les règles copiées dans chaque PV restent consultables dans l’aperçu et la sauvegarde.

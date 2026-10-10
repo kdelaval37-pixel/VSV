@@ -1,0 +1,51 @@
+import {participant,action,movePoint} from './meeting-model.js';
+import {statutoryRules,count} from './pv-rules.js';
+export {participant,action,movePoint};
+export const pvStatuses=['Brouillon','En cours','Finalisé'];
+export const pvPointStatuses=['À aborder','En cours','Discuté','Non discuté','Reporté'];
+export const pvTypes={AGO:'AG ordinaire',AGE:'AG extraordinaire'};
+export function localDate(now=new Date()){return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;}
+export function pv(){return {kind:'pv',id:crypto.randomUUID(),title:'Assemblée générale',updatedAt:new Date().toISOString(),status:'Brouillon',stage:'preparation',type:'AGO',convocation:'first',date:localDate(),noticeDate:'',secondNoticeDate:'',firstDate:'',firstReference:'',firstQuorum:'',place:'',startTime:'',endTime:'',noticeMethod:'Courriel',convener:'',memberTotal:'',presentCount:'',chair:'',secretary:'',present:[],guests:[],excused:[],powers:[],agenda:[],referenceAgenda:null,referenceHistory:[],referenceCorrectionReason:'',finalNotes:'',establishedPlace:'',establishedDate:'',signers:[],signersInitialized:false,annex:false,rules:statutoryRules()};}
+export function pvPoint(title='',origin='announced'){return {id:crypto.randomUUID(),title,origin,topic:'general',article:'',newText:'',liquidators:'',assetDestination:'',status:'À aborder',presentation:'',discussion:'',decisions:'',reportNote:'',includeNotes:null,actions:[],resolutions:[]};}
+export function power(){return {id:crypto.randomUUID(),donor:'',receiver:'',paid:false,receiverConfirmed:false,verification:''};}
+export function resolution(pv){return {id:crypto.randomUUID(),text:'',kind:'binary',mode:'Main levée',eligible:'',for:'',against:'',abstain:'',blank:'',invalid:'',nonParticipation:'',changes:'',rule:{assemblyType:pv.type,majority:pv.type==='AGO'?pv.rules.ago.majority:pv.rules.age.majority,source:pv.rules.source,convention:pv.rules.convention,recordedAt:new Date().toISOString()},electorateSnapshot:{memberTotal:pv.memberTotal,presentCount:pv.presentCount,powers:structuredClone(pv.powers)},electionRule:'',choicesPerVoter:'',seats:'',electionResult:'',candidates:[]};}
+export const candidate=()=>({id:crypto.randomUUID(),name:'',votes:'',result:'À renseigner'});
+export const signer=(name='',role='')=>({id:crypto.randomUUID(),name,role});
+export function beginWriting(pv){if(pv.referenceAgenda===null)pv.referenceAgenda=pv.agenda.filter(p=>p.origin==='announced').map(p=>({pointId:p.id,title:p.title}));pv.stage='writing';if(pv.status!=='Finalisé')pv.status='En cours';if(!pv.signersInitialized){pv.signers=[signer(pv.chair,'Présidence de séance'),signer(pv.secretary,'Secrétariat de séance')];pv.signersInitialized=true;}}
+export const pointHasContent=p=>Boolean(p.article.trim()||p.newText.trim()||p.liquidators.trim()||p.assetDestination.trim()||p.presentation.trim()||p.discussion.trim()||p.decisions.trim()||p.actions.length||p.resolutions.length);
+export const hiddenPoint=p=>['Non discuté','Reporté'].includes(p.status);
+export const contentVisible=p=>!hiddenPoint(p)||p.includeNotes===true;
+export function duplicatePv(original){const copy=pv();copy.title=original.title+' (nouvelle AG)';copy.type=original.type;copy.place=original.place;copy.noticeMethod=original.noticeMethod;copy.date='';copy.rules=structuredClone(original.rules);copy.agenda=original.agenda.map(p=>({...pvPoint(p.title),topic:p.topic}));return copy;}
+function text(value){if(typeof value!=='string'||value.length>100000)throw Error('Champ de PV invalide.');}
+function id(value){if(typeof value!=='string'||!/^[A-Za-z0-9_-]{1,200}$/.test(value))throw Error('Identifiant de PV invalide.');}
+function list(value){if(!Array.isArray(value)||value.length>1000)throw Error('Liste de PV invalide.');}
+function bool(value){if(typeof value!=='boolean')throw Error('Choix de PV invalide.');}
+function choice(value,options){if(!options.includes(value))throw Error('Choix de PV invalide.');}
+function number(value){text(value);if(value!==''&&!Number.isFinite(count(value)))throw Error('Utilisez des nombres entiers positifs ou nuls (maximum un milliard).');}
+function date(value){text(value);if(value&&(!/^\d{4}-\d{2}-\d{2}$/.test(value)||!Number.isFinite(Date.parse(value))||new Date(value).toISOString().slice(0,10)!==value))throw Error('Date de PV invalide.');}
+export function validatePv(m){
+ if(!m||m.kind!=='pv')throw Error('Procès-verbal invalide.');id(m.id);text(m.updatedAt);if(!Number.isFinite(Date.parse(m.updatedAt)))throw Error('Date de modification invalide.');
+ for(const k of ['title','firstReference','place','convener','chair','secretary','referenceCorrectionReason','finalNotes','establishedPlace'])text(m[k]);if(!m.title.trim())throw Error('L’intitulé du PV ne peut pas être vide.');
+ for(const k of ['date','noticeDate','secondNoticeDate','firstDate','establishedDate'])date(m[k]);
+ for(const k of ['startTime','endTime']){text(m[k]);if(m[k]&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(m[k]))throw Error('Heure de PV invalide.');}
+ choice(m.status,pvStatuses);choice(m.stage,['preparation','writing']);choice(m.type,['AGO','AGE']);choice(m.convocation,['first','second']);choice(m.noticeMethod,['Courriel','Messagerie instantanée','Papier','Autre']);choice(m.firstQuorum,['','insufficient','unknown','sufficient']);
+ number(m.memberTotal);number(m.presentCount);bool(m.annex);bool(m.signersInitialized);
+ const rules=m.rules;if(!rules||rules.version!==1||!rules.ago||!rules.age||rules.ago.noticeDays!==15||rules.ago.quorumDivisor!==4||rules.ago.proxyLimit!==2||rules.ago.secondDays!==7||rules.ago.majority!=='simple'||rules.age.noticeDays!==15||rules.age.quorumDivisor!==3||rules.age.majority!=='two-thirds'||rules.secondNoQuorum!==true)throw Error('Copie des règles statutaires non prise en charge.');text(rules.source);text(rules.convention);
+ const c=rules.confirmations;if(!c)throw Error('Confirmations manquantes.');for(const k of ['initialRepresentedReason','ageProxyLimitReason','secondAgoOriginReason','secondAgeDelayReason'])text(c[k]);
+ choice(c.initialRepresented,['','yes','no']);choice(c.ageProxyLimit,['','yes','no']);choice(c.secondAgoOrigin,['','first-assembly','second-notice']);choice(c.secondAgeDelay,['','15-notice','7-first','7-notice','custom']);choice(c.secondAgeOrigin,['','first-assembly','second-notice']);number(c.secondAgeDays);
+ const ids=new Set();const unique=value=>{id(value);if(ids.has(value))throw Error('Identifiant de ligne en double.');ids.add(value);};
+ for(const key of ['present','guests','excused','signers']){list(m[key]);m[key].forEach(p=>{if(!p)throw Error('Personne invalide.');unique(p.id);text(p.name);text(p.role);});}
+ list(m.powers);m.powers.forEach(p=>{if(!p)throw Error('Pouvoir invalide.');unique(p.id);text(p.donor);text(p.receiver);bool(p.paid);bool(p.receiverConfirmed);text(p.verification);});
+ if(m.referenceAgenda!==null){list(m.referenceAgenda);m.referenceAgenda.forEach(p=>{if(!p)throw Error('Ordre de référence invalide.');id(p.pointId);text(p.title);});}
+ list(m.referenceHistory);m.referenceHistory.forEach(h=>{if(!h)throw Error('Historique d’ordre du jour invalide.');text(h.reason);text(h.updatedAt);if(!Number.isFinite(Date.parse(h.updatedAt)))throw Error('Date d’historique invalide.');list(h.agenda);h.agenda.forEach(p=>{id(p.pointId);text(p.title);});});
+ list(m.agenda);m.agenda.forEach(p=>{if(!p)throw Error('Point invalide.');unique(p.id);for(const k of ['title','presentation','discussion','decisions','reportNote','article','newText','liquidators','assetDestination'])text(p[k]);choice(p.origin,['announced','session']);choice(p.topic,['general','statutes','dissolution','election','fusion']);choice(p.status,pvPointStatuses);choice(p.includeNotes,[null,true,false]);
+  list(p.actions);p.actions.forEach(a=>{if(!a)throw Error('Action invalide.');unique(a.id);text(a.text);text(a.owner);date(a.due);});
+  list(p.resolutions);p.resolutions.forEach(r=>{if(!r)throw Error('Résolution invalide.');unique(r.id);for(const k of ['text','changes','electionRule','electionResult'])text(r[k]);choice(r.kind,['binary','election']);choice(r.mode,['Main levée','Bulletin secret','Autre']);for(const k of ['eligible','for','against','abstain','blank','invalid','nonParticipation','choicesPerVoter','seats'])number(r[k]);
+   if(!r.rule||!r.electorateSnapshot)throw Error('Règle du vote manquante.');choice(r.rule.assemblyType,['AGO','AGE']);choice(r.rule.majority,['simple','two-thirds']);if(r.rule.majority!==(r.rule.assemblyType==='AGO'?'simple':'two-thirds'))throw Error('Règle du vote incohérente.');text(r.rule.source);text(r.rule.convention);text(r.rule.recordedAt);if(!Number.isFinite(Date.parse(r.rule.recordedAt)))throw Error('Date du vote invalide.');number(r.electorateSnapshot.memberTotal);number(r.electorateSnapshot.presentCount);list(r.electorateSnapshot.powers);r.electorateSnapshot.powers.forEach(p=>{if(!p)throw Error('Copie du pouvoir invalide.');id(p.id);text(p.donor);text(p.receiver);bool(p.paid);bool(p.receiverConfirmed);text(p.verification);});
+   list(r.candidates);r.candidates.forEach(c=>{if(!c)throw Error('Candidat invalide.');unique(c.id);text(c.name);number(c.votes);choice(c.result,['À renseigner','Élu','Non élu','Autre']);});
+  });
+ });return m;
+}
+export function validatePvDocument(m){validatePv(m);if(m.agenda.some(p=>hiddenPoint(p)&&pointHasContent(p)&&p.includeNotes===null))throw Error('Choisissez si le contenu conservé des points non discutés ou reportés doit apparaître dans le document.');return m;}
+
+export function correctReference(m){if(!m.referenceCorrectionReason.trim())throw Error('Précisez le motif de correction de l’ordre annoncé.');if(m.referenceAgenda!==null)m.referenceHistory.push({agenda:structuredClone(m.referenceAgenda),reason:m.referenceCorrectionReason,updatedAt:new Date().toISOString()});m.referenceAgenda=m.agenda.filter(p=>p.origin==='announced').map(p=>({pointId:p.id,title:p.title}));m.referenceCorrectionReason='';}
