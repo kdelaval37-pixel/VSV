@@ -1,0 +1,3 @@
+import {contrast} from './references-model.js';
+export function themeVariables(color){contrast(color);const rgb=color.slice(1).match(/../g).map(x=>parseInt(x,16));const mix=(to,n)=>'#'+rgb.map((v,i)=>Math.round(v*(1-n)+to[i]*n).toString(16).padStart(2,'0')).join('');let ink=color;for(let n=.1;contrast(ink)!=='#ffffff'&&n<=.8;n+=.1)ink=mix([0,0,0],n);const hover=mix([0,0,0],.12);return {'header-color':color,'header-text':contrast(color),'primary':color,'primary-text':contrast(color),'primary-ink':ink,'primary-hover':hover,'primary-hover-text':contrast(hover),'primary-pale':mix([255,255,255],.91),'primary-border':mix([255,255,255],.55),'primary-focus':ink};}
+export const themeStyle=color=>Object.entries(themeVariables(color)).map(([k,v])=>`--${k}:${v}`).join(';');
