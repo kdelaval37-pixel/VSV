@@ -48,4 +48,4 @@ Export PDF, budgets plus détaillés, plannings de bénévoles, fiches technique
 - `src/style.css` : présentation responsive et styles d’impression.
 - `server.js` : serveur local, sans dépendance.
 
-Exécuter `npm test` pour les six tests automatiques de données. Les parcours ont également été vérifiés dans Chromium : création, modification, rechargement, duplication, suppression confirmée ou annulée, lignes budgétaires, centimes, téléchargement/import JSON, import invalide, accents, aperçu, échec de stockage simulé et largeur mobile. Windows, macOS, Safari et Firefox n’ont pas été testés dans cet environnement Linux.
+Exécuter `npm test` pour les dix tests automatiques de données et de chemins Windows/Linux. Les parcours ont également été vérifiés dans Chromium : création, modification, rechargement, duplication, suppression confirmée ou annulée, lignes budgétaires, centimes, téléchargement/import JSON, import invalide, accents, aperçu, échec de stockage simulé et largeur mobile. Windows, macOS, Safari et Firefox n’ont pas été testés dans cet environnement Linux.

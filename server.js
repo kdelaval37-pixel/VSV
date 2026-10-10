@@ -1,5 +1,37 @@
 import http from 'node:http';
 import {readFile} from 'node:fs/promises';
-import {resolve,extname} from 'node:path';
-const root=resolve(import.meta.dirname);
-http.createServer(async(req,res)=>{try{const path=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));if(path!==root&&!path.startsWith(root+'/'))throw Error();if(path!==root&&path!==root+'/index.html'&&!path.startsWith(root+'/src/'))throw Error();const file=path===root+'/'?root+'/index.html':path;const target=new URL(req.url,'http://localhost').pathname==='/'?root+'/index.html':file;const data=await readFile(target);res.writeHead(200,{'Content-Type':({'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8'})[extname(target)]||'application/octet-stream'});res.end(data);}catch{res.writeHead(404);res.end('Introuvable');}}).listen(4173,'127.0.0.1',()=>console.log('VSV : ouvrez http://localhost:4173 — Ctrl+C pour arrêter.'));
+import {resolve, extname} from 'node:path';
+import {resolvePublicFile} from './server-path.js';
+
+const root = resolve(import.meta.dirname);
+const port = Number(process.env.VSV_PORT || 4173);
+const types = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8'
+};
+const server = http.createServer(async (req, res) => {
+  try {
+    const pathname = new URL(req.url, 'http://localhost').pathname;
+    const target = resolvePublicFile(root, pathname);
+    if (!target) throw new Error('Chemin non public');
+    const data = await readFile(target);
+    res.writeHead(200, {
+      'Content-Type': types[extname(target)] || 'application/octet-stream',
+      'Cache-Control': 'no-store'
+    });
+    res.end(data);
+  } catch {
+    res.writeHead(404, {'Content-Type': 'text/plain; charset=utf-8'});
+    res.end('Introuvable');
+  }
+});
+server.on('error', error => {
+  console.error(error.code === 'EADDRINUSE'
+    ? 'VSV est déjà lancé ou le port 4173 est occupé. Fermez la précédente fenêtre de lancement et réessayez.'
+    : 'Impossible de lancer VSV : ' + error.message);
+  process.exitCode = 1;
+});
+server.listen(port, '127.0.0.1', () => {
+  console.log(`VSV : ouvrez http://localhost:${port} — Ctrl+C pour arrêter.`);
+});
