@@ -8,7 +8,8 @@ const port = Number(process.env.VSV_PORT || 4173);
 const types = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8'
+  '.css': 'text/css; charset=utf-8',
+  '.png': 'image/png'
 };
 const server = http.createServer(async (req, res) => {
   try {

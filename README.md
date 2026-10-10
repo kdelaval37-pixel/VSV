@@ -21,6 +21,10 @@ Les dates peuvent rester vides. Les montants et quantités acceptent le point ou
 
 Revenez à **Mes projets** pour rechercher une fiche ou filtrer par statut. **Ouvrir** permet de la modifier ; **Dupliquer** crée une copie indépendante ; **Supprimer** demande confirmation. **Aperçu** présente les informations réellement saisies sous forme de document, en masquant les rubriques vides. Le statut « Validé » ne déclenche aucune approbation.
 
+## Exporter une fiche en PDF
+
+Depuis la fiche ou son aperçu, cliquez sur **Exporter en PDF**. Dans la fenêtre d’impression, choisissez **Enregistrer au format PDF** (ou **Microsoft Print to PDF** sous Windows), puis **Enregistrer** et choisissez votre dossier. Utilisez le format A4 ; si le navigateur propose « En-têtes et pieds de page », désactivez cette option pour éviter l’adresse et la date ajoutées par le navigateur. L’export reprend la fiche actuellement affichée. Un message signale si elle contient des changements non sauvegardés. Corrigez les montants invalides avant l’export. Le PDF est un document de consultation ; conservez aussi votre sauvegarde JSON pour continuer à modifier les projets.
+
 ## 3. Sauvegarder et restaurer
 
 Cliquez régulièrement sur **Télécharger la sauvegarde JSON**. Conservez le fichier téléchargé dans un dossier facile à retrouver, éventuellement sur une clé USB. Il contient vos projets et leurs coordonnées : choisissez un endroit adapté à ces informations personnelles.
@@ -33,11 +37,11 @@ En cas d’échec de stockage, une sauvegarde JSON depuis l’éditeur peut auss
 
 Les fiches résident dans ce navigateur, ce profil et cet appareil. Effacer ses données, changer de navigateur ou utiliser un autre ordinateur ne transfère pas les projets. La fermeture de l’application conserve les fiches correctement enregistrées, mais pas les changements signalés comme non sauvegardés. Les fichiers JSON permettent le transfert manuel.
 
-Il n’y a ni compte, ni partage synchronisé, ni modification simultanée. Évitez d’ouvrir plusieurs fenêtres d’édition à la fois : cette version ne gère pas les conflits entre fenêtres. Aucun PDF automatique n’est encore proposé. Le document dispose déjà d’une présentation destinée à une future exportation.
+Il n’y a ni compte, ni partage synchronisé, ni modification simultanée. Évitez d’ouvrir plusieurs fenêtres d’édition à la fois : cette version ne gère pas les conflits entre fenêtres. L’export PDF utilise la fenêtre d’impression du navigateur, sans logiciel supplémentaire. Le document suit le modèle fourni par VSV (logo, coordonnées, rubriques numérotées et blocs verts), avec une pagination adaptée aux textes longs.
 
 ## 5. Évolutions possibles
 
-Export PDF, budgets plus détaillés, plannings de bénévoles, fiches techniques, bilans, courriers et comptes rendus, puis stockage partagé et comptes avec rôles. Les données du projet sont séparées du document pour pouvoir être réutilisées. Ces fonctionnalités ne sont pas implémentées dans cette version.
+Budgets plus détaillés, plannings de bénévoles, fiches techniques, bilans, courriers et comptes rendus, puis stockage partagé et comptes avec rôles. Les données du projet sont séparées du document pour pouvoir être réutilisées. Ces fonctionnalités ne sont pas implémentées dans cette version.
 
 ## Repères techniques et vérifications
 
@@ -48,4 +52,6 @@ Export PDF, budgets plus détaillés, plannings de bénévoles, fiches technique
 - `src/style.css` : présentation responsive et styles d’impression.
 - `server.js` : serveur local, sans dépendance.
 
-Exécuter `npm test` pour les dix tests automatiques de données et de chemins Windows/Linux. Les parcours ont également été vérifiés dans Chromium : création, modification, rechargement, duplication, suppression confirmée ou annulée, lignes budgétaires, centimes, téléchargement/import JSON, import invalide, accents, aperçu, échec de stockage simulé et largeur mobile. Windows, macOS, Safari et Firefox n’ont pas été testés dans cet environnement Linux.
+Exécuter `npm test` pour les douze tests automatiques de données, de PDF et de chemins Windows/Linux. Les parcours ont également été vérifiés dans Chromium : création, modification, rechargement, duplication, suppression confirmée ou annulée, lignes budgétaires, centimes, téléchargement/import JSON, import invalide, accents, aperçu, échec de stockage simulé et largeur mobile. Windows, macOS, Safari et Firefox n’ont pas été testés dans cet environnement Linux.
+
+Le PDF multipage a été généré et son contenu contrôlé dans Chromium sous Linux ; le bouton d’export et le chargement du logo ont été vérifiés. La fenêtre native « Microsoft Print to PDF » sous Windows n’a pas pu être testée ici.
