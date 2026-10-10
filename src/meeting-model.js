@@ -1,3 +1,4 @@
+import {validateDocumentReferences} from './references-model.js';
 export const meetingStatuses = ['Brouillon', 'En cours', 'Finalisé'];
 export const pointStatuses = ['À aborder', 'En cours', 'Discuté', 'Non discuté'];
 export const meetingFields = [
@@ -47,8 +48,7 @@ export function movePoint(m, id, delta) {
 }
 export function participantConflicts(m) {
   const normalize = name => name.trim().normalize('NFC').toLocaleLowerCase('fr');
-  const present = new Set(m.present.map(p => normalize(p.name)).filter(Boolean));
-  return [...new Set(m.excused.filter(p => present.has(normalize(p.name))).map(p => p.name.trim()))];
+  return [...new Set(m.excused.filter(p => m.present.some(q=>p.memberId&&q.memberId&&p.memberId===q.memberId||normalize(p.name)&&normalize(p.name)===normalize(q.name))).map(p => p.name.trim()))];
 }
 function text(value) {if (typeof value !== 'string' || value.length > 100000) throw Error('Champ du compte rendu invalide.');}
 function identity(value) {text(value); if (!/^[A-Za-z0-9_-]{1,200}$/.test(value)) throw Error('Identifiant du compte rendu invalide.');}
@@ -58,6 +58,7 @@ function dateValue(value) {
   if (value && (!/^\d{4}-\d{2}-\d{2}$/.test(value) || !Number.isFinite(Date.parse(value)) || new Date(value).toISOString().slice(0,10) !== value)) throw Error('Date du compte rendu invalide.');
 }
 export function validateMeeting(m) {
+ validateDocumentReferences(m);
   if (!m || m.kind !== 'meeting') throw Error('Compte rendu invalide.');
   identity(m.id); text(m.updatedAt);
   if (!Number.isFinite(Date.parse(m.updatedAt))) throw Error('Date de modification invalide.');

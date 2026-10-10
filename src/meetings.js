@@ -138,5 +138,5 @@ export function createMeetingModule({app,getMeetings,persist,blocked,navigation,
       if(choice==='finish'){const oldStatus=current.status;current.status='Finalisé';if(save()){close();editor();}else{current.status=oldStatus;}}
     });
   }
-  return {list,start,leave,clear,hasUnsaved:()=>dirty,getDraft:()=>dirty?current:null};
+  return {list,start,leave,clear,getCurrent:()=>current,saveReference:()=>save(),renderEditor:()=>editor(),hasUnsaved:()=>dirty,getDraft:()=>dirty?current:null};
 }

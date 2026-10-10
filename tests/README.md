@@ -2,7 +2,7 @@
 
 `npm test` exécute les tests de données avec Node.js, sans installation de dépendance.
 
-Les cinq scripts dans `browser/` sont des vérifications facultatives des parcours réels dans un navigateur isolé. Ils utilisent Playwright, un outil de test qui n’est pas nécessaire pour lancer VSV. Ils génèrent leurs sauvegardes et PDF dans un dossier temporaire et n’ouvrent pas le profil habituel de l’utilisateur.
+Les sept scripts dans `browser/` sont des vérifications facultatives des parcours réels dans un navigateur isolé. Ils utilisent Playwright, un outil de test qui n’est pas nécessaire pour lancer VSV. Ils génèrent leurs sauvegardes et PDF dans un dossier temporaire et n’ouvrent pas le profil habituel de l’utilisateur.
 
 Après installation de Playwright et de son navigateur dans un emplacement de test, lancer le serveur VSV, puis :
 
@@ -30,3 +30,13 @@ node tests/browser/pv-pdf-restart.mjs
 ```
 
 Le premier couvre AGO/AGE, préparation, pouvoirs, quorum, délai, votes binaires et élections, notes non discutées, duplications, finalisation/réouverture, sauvegardes V1/V2/V3, données existantes, mobile et échec de stockage. Le second ferme réellement le navigateur puis réouvre le même profil temporaire ; il vérifie ensuite l’aperçu et génère un PDF long, incluant les résolutions et une annexe. Tous les noms utilisés sont fictifs. Les sorties indiquent le dossier temporaire des captures et PDF. La fenêtre native d’impression est remplacée par un témoin ; le fichier PDF est généré séparément par Chromium.
+
+
+Référentiels et paramètres :
+
+```sh
+node tests/browser/references-smoke.mjs
+node tests/browser/references-restart-pdf.mjs
+```
+
+Avec les mêmes variables Playwright/Chromium et URL que ci-dessus, le premier vérifie l’assistant CSV, les rapprochements, l’annulation, les sélecteurs, les calculs de packs, les lieux, la couleur et les sauvegardes. Le second utilise un profil temporaire persistant pour une fermeture réelle et une réouverture, simule un échec de stockage, contrôle les instantanés et archives, génère les trois types de PDF avec la couleur choisie et restaure la sauvegarde dans un navigateur vierge. Les fenêtres d’impression natives restent remplacées par un témoin. Aucun fichier de membres réels ni profil utilisateur n’est utilisé.

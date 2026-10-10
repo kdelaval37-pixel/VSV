@@ -1,3 +1,4 @@
+import {validateDocumentReferences} from './references-model.js';
 import {participant,action,movePoint} from './meeting-model.js';
 import {statutoryRules,count} from './pv-rules.js';
 export {participant,action,movePoint};
@@ -24,6 +25,7 @@ function choice(value,options){if(!options.includes(value))throw Error('Choix de
 function number(value){text(value);if(value!==''&&!Number.isFinite(count(value)))throw Error('Utilisez des nombres entiers positifs ou nuls (maximum un milliard).');}
 function date(value){text(value);if(value&&(!/^\d{4}-\d{2}-\d{2}$/.test(value)||!Number.isFinite(Date.parse(value))||new Date(value).toISOString().slice(0,10)!==value))throw Error('Date de PV invalide.');}
 export function validatePv(m){
+ validateDocumentReferences(m);
  if(!m||m.kind!=='pv')throw Error('Procès-verbal invalide.');id(m.id);text(m.updatedAt);if(!Number.isFinite(Date.parse(m.updatedAt)))throw Error('Date de modification invalide.');
  for(const k of ['title','firstReference','place','convener','chair','secretary','referenceCorrectionReason','finalNotes','establishedPlace'])text(m[k]);if(!m.title.trim())throw Error('L’intitulé du PV ne peut pas être vide.');
  for(const k of ['date','noticeDate','secondNoticeDate','firstDate','establishedDate'])date(m[k]);

@@ -31,7 +31,7 @@ Depuis la fiche ou son aperçu, cliquez sur **Exporter en PDF**. Dans la fenêtr
 
 Cliquez régulièrement sur **Télécharger la sauvegarde JSON**. Conservez le fichier téléchargé dans un dossier facile à retrouver, éventuellement sur une clé USB. Il contient vos projets, vos comptes rendus, leurs notes et les coordonnées saisies : choisissez un endroit adapté à ces informations personnelles.
 
-Pour restaurer, cliquez sur **Importer une sauvegarde** depuis un des trois modules et choisissez le fichier JSON. Confirmez l’import. Les fiches existantes restent intactes : un identifiant déjà présent donne une nouvelle copie portant la mention « importé ». Un fichier invalide est refusé sans changer vos données. Les nouvelles sauvegardes portent le numéro de version 3 et contiennent les projets, les comptes rendus et les PV. Les anciennes sauvegardes V1 (projets) et V2 (projets et réunions) restent importables sans supprimer les PV ni les autres documents existants. Une ancienne version de l’application ne sait pas lire le nouveau format ; utilisez la version à jour et téléchargez une sauvegarde avant toute mise à jour.
+Pour restaurer, cliquez sur **Importer une sauvegarde** depuis un des trois modules et choisissez le fichier JSON. Confirmez l’import. Les fiches existantes restent intactes : un identifiant déjà présent donne une nouvelle copie portant la mention « importé ». Un fichier invalide est refusé sans changer vos données. Les nouvelles sauvegardes portent le numéro de version 4 et contiennent les projets, les comptes rendus, les PV, les trois référentiels et les préférences. Les anciennes sauvegardes V1 (projets) et V2 (projets et réunions) et V3 (avec PV) restent importables sans supprimer les PV, les autres documents, les référentiels ou les préférences existants. Une ancienne version de l’application ne sait pas lire le nouveau format ; utilisez la version à jour et téléchargez une sauvegarde avant toute mise à jour.
 
 En cas d’échec de stockage, une sauvegarde JSON depuis l’éditeur peut aussi conserver les changements valides de la fiche ouverte. Une saisie invalide doit être corrigée avant sauvegarde. Si les données déjà présentes sont illisibles, l’application bloque les écritures pour les préserver : ne les effacez pas avant d’avoir demandé de l’aide.
 
@@ -55,15 +55,20 @@ Budgets plus détaillés, plannings de bénévoles, fiches techniques, bilans, c
 - `src/pv-rules.js` : contrôles de dates civiles, quorum, pouvoirs et votes.
 - `src/pv.js` : préparation et rédaction des PV.
 - `src/pv-document.js` : aperçu et document A4 des PV.
-- `src/backup.js` : sauvegarde commune V3 et import des sauvegardes V1/V2.
+- `src/backup.js` : sauvegarde commune V4 et import des sauvegardes V1/V2/V3.
 - `src/pdf.js` : export via impression, partagé entre les trois types de documents.
+- `src/references-model.js` : membres, articles, lieux, hiérarchies et copies dans les documents.
+- `src/csv.js` : parseur CSV, encodages, rapprochement et préparation des imports.
+- `src/references-ui.js` : paramètres et gestion des listes en fenêtre.
+- `src/reference-selectors.js` : recherche, clavier et intégration aux formulaires.
+- `src/pack.js` : quantités et calculs monétaires des packs en entiers.
 - `src/storage.js` : lecture et écriture locales, erreurs propagées à l’interface.
 - `src/app.js` : interface et parcours de saisie.
 - `src/document.js` : présentation du document et échappement des textes.
 - `src/style.css` : présentation responsive et styles d’impression.
 - `server.js` : serveur local, sans dépendance.
 
-Exécuter `npm test` pour les 41 tests automatiques de données, de sauvegardes compatibles, de PDF et de chemins Windows/Linux. Les parcours ont également été vérifiés dans Chromium : création, modification, rechargement, duplication, suppression confirmée ou annulée, lignes budgétaires, centimes, téléchargement/import JSON, import invalide, accents, aperçu, échec de stockage simulé et largeur mobile. Windows, macOS, Safari et Firefox n’ont pas été testés dans cet environnement Linux.
+Exécuter `npm test` pour les 56 tests automatiques de données, de sauvegardes compatibles, de PDF et de chemins Windows/Linux. Les parcours ont également été vérifiés dans Chromium : création, modification, rechargement, duplication, suppression confirmée ou annulée, lignes budgétaires, centimes, téléchargement/import JSON, import invalide, accents, aperçu, échec de stockage simulé et largeur mobile. Windows, macOS, Safari et Firefox n’ont pas été testés dans cet environnement Linux.
 
 Le PDF multipage a été généré et son contenu contrôlé dans Chromium sous Linux ; le bouton d’export et le chargement du logo ont été vérifiés. La fenêtre native « Microsoft Print to PDF » sous Windows n’a pas pu être testée ici.
 
@@ -105,6 +110,52 @@ Les tests navigateur reproductibles sont dans `tests/browser/` ; voir `tests/REA
 
 Les règles implémentées viennent des articles 10/11 tels que fournis dans la demande. Les détails signalés comme ambigus nécessitent votre confirmation justifiée ; l’application ne certifie pas globalement la régularité de l’assemblée. Les majorités binaires excluent abstentions, blancs et nuls des suffrages exprimés ; aucune voix prépondérante n’est appliquée. Un scrutin particulier nécessite sa règle et sa conclusion explicites.
 
-Les 41 tests Node vérifient notamment les seuils 80/81 adhérents, les deux tiers exacts, les égalités, les pouvoirs excessifs, les dates civiles, les secondes convocations, les instantanés et les imports V1/V2/V3. Dans Chromium sous Linux, les parcours AGO/AGE, rédaction, notes conservées, duplication, finalisation/réouverture, imports, erreur de stockage et affichage mobile ont été exécutés. Un profil a été fermé puis rouvert réellement. Un PV fictif A4 de **26 pages** a été généré : fin du texte, dernières résolutions et annexe présentes, notes masquées absentes, aucune page vide. Les projets historiques et les comptes rendus restent accessibles et modifiables.
+Les 56 tests Node vérifient notamment les seuils 80/81 adhérents, les deux tiers exacts, les égalités, les pouvoirs excessifs, les dates civiles, les secondes convocations, les instantanés et les imports V1/V2/V3. Dans Chromium sous Linux, les parcours AGO/AGE, rédaction, notes conservées, duplication, finalisation/réouverture, imports, erreur de stockage et affichage mobile ont été exécutés. Un profil a été fermé puis rouvert réellement. Un PV fictif A4 de **26 pages** a été généré : fin du texte, dernières résolutions et annexe présentes, notes masquées absentes, aucune page vide. Les projets historiques et les comptes rendus restent accessibles et modifiables.
 
 La fenêtre native d’impression Windows et les navigateurs Safari/Firefox n’ont pas été testés ici. Il n’y a pas de signature électronique, de convocations automatiques, de certification juridique ni de travail simultané. Les contrôles visibles et les règles copiées dans chaque PV restent consultables dans l’aperçu et la sauvegarde.
+
+## Membres, articles, lieux et paramètres : mode d’emploi
+
+### Importer les membres depuis Paheko
+
+Ouvrez **Paramètres → Membres → Importer / mettre à jour depuis Paheko**, puis choisissez votre CSV exporté de Paheko. Le fichier reste sur votre ordinateur : aucun envoi vers Paheko ni vers un service distant.
+
+1. Vérifiez l’encodage et le séparateur détectés (virgule, point-virgule ou tabulation). Si les accents sont illisibles ou les colonnes incorrectes, changez ces options. UTF-8, Windows-1252 et UTF-16 sont proposés. Les guillemets, guillemets doublés et cellules multilignes sont pris en charge.
+2. Associez les colonnes disponibles. Seul un nom ou prénom est nécessaire ; les coordonnées ne sont pas importées par défaut. Les numéros restent du texte, avec leurs zéros initiaux. Ne mappez une cotisation que si sa signification est explicite : oui/non, payé/impayé, à jour/non à jour. Les dates reconnues sont AAAA-MM-JJ et JJ/MM/AAAA ; une expiration seule ne garantit pas le droit de vote.
+3. Pour une colonne d’état contenant oui/non ou 1/0, précisez explicitement si elle signifie **actif** ou **archivé**. Sans information interprétable, l’état et la cotisation restent inconnus. Un état inconnu reste visible dans l’annuaire.
+4. Cliquez sur **Examiner l’import**. Vous voyez créations, mises à jour et anomalies. L’identifiant Paheko stable permet une mise à jour ; un rapprochement proposé par nom nécessite votre décision. Pour un homonyme, choisissez **Créer un membre distinct**. Les membres absents du fichier ne sont jamais supprimés. Les lignes invalides sont signalées et ignorées uniquement après confirmation.
+5. Cliquez sur **Confirmer l’enregistrement de cet import**, puis confirmez le récapitulatif. Fermer la fenêtre auparavant ne modifie rien. Le résultat et la date du dernier import réussi sont consultables dans la gestion des membres.
+
+Le CSV ne modifie pas les effectifs ni les noms des documents existants. Dans une AG, vérifiez toujours la cotisation et le droit de vote à la date de l’assemblée. Le bouton **Utiliser explicitement le nombre de présents nommés** demande confirmation avant de remplacer le nombre déclaré ; l’effectif total des adhérents reste saisi séparément.
+
+### Enrichir les listes pendant la saisie
+
+Les champs de membres, lieux et articles proposent une recherche sans distinction de casse ou d’accents. **▾** ouvre toute la liste ; pour les articles et lieux, vous pouvez filtrer par catégorie. Le chemin complet identifie chaque résultat. Utilisez **↑ / ↓**, puis **Entrée** pour sélectionner ; **Échap** ferme les propositions. Vous pouvez aussi cliquer ou toucher un résultat. Les 100 premiers résultats sont affichés : précisez la recherche pour une grande liste.
+
+**⚙ Gérer cette liste** ouvre la gestion sans quitter le document ni vider les notes. Depuis les propositions, **Ajouter un élément** permet de créer puis sélectionner immédiatement une référence. Elle est enregistrée pour les autres documents. Les invités et partenaires peuvent rester en saisie libre, sans ajout obligatoire à l’annuaire. Pour les participants et l’équipe de projet, les étiquettes **×** retirent un nom ; une même référence n’est pas proposée deux fois dans une liste. Les noms historiques ne sont pas rapprochés automatiquement.
+
+Dans **Catalogue d’articles** et **Lieux**, créez les catégories, puis leurs sous-catégories en choisissant un parent. Les déplacements circulaires sont refusés. Modifier un article ou un lieu permet de le déplacer dans l’arborescence. **Archiver** le retire des nouvelles propositions, sans supprimer ses informations des documents. **Voir aussi les archives** permet de le réactiver. Il n’y a pas de suppression définitive des référentiels dans cette version.
+
+Les lieux proposent commune, adresse, capacité, contact, notes et accessibilité. Leur sélection copie ces informations dans le document ; les adaptations suivantes restent propres à ce document. Un lieu du répertoire n’est ni réservé ni garanti disponible.
+
+### Achats par packs
+
+Dans les dépenses d’une fiche projet, recherchez un article dans le libellé. Sa sélection active le mode **Achat par packs / à l’unité** et copie son conditionnement/prix habituel, s’ils existent. Complétez **Nombre de packs**, **Unités par pack** et **Prix d’un pack**. Pour acheter à l’unité, choisissez une unité par pack.
+
+Avec 3 packs de 6 bouteilles à 9 € le pack, l’application affiche **18 bouteilles**, **27 €** et **1,50 € par bouteille**. Packs et unités sont des entiers strictement positifs ; le prix peut être nul et accepte la virgule. Le total est calculé en centimes depuis les packs. Le prix unitaire porte la mention **environ** lorsqu’il est arrondi. La ligne est comptée une seule fois dans le budget. Le mode **Dépense libre** conserve les prestations, locations et autres dépenses habituelles.
+
+**Mémoriser ce conditionnement et ce prix pour les prochains achats** demande confirmation avant de mettre à jour le catalogue. Changer le prix d’une fiche ne change ni le catalogue ni les budgets des autres fiches. Les nouveaux achats utilisent ensuite le nouveau prix habituel.
+
+### Personnaliser l’en-tête et sauvegarder
+
+Dans **Paramètres → Apparence**, choisissez une couleur dans la palette ou saisissez un code comme **#285b4d**. L’aperçu est immédiat ; le texte devient noir ou blanc selon le contraste. La couleur enregistrée est reprise au prochain lancement et dans les en-têtes des trois aperçus/PDF. **Rétablir la couleur d’origine** revient au vert VSV. En cas d’échec d’enregistrement, le message le signale : la couleur affichée peut être un aperçu non enregistré.
+
+La sauvegarde complète JSON contient désormais tous les documents, membres, articles, lieux et préférences. Les anciennes sauvegardes V1/V2/V3 restent importables sans effacer les listes. À la restauration, les documents en double sont ajoutés comme copies ; pour une référence ayant déjà le même identifiant, la version locale est conservée (cela est annoncé avant confirmation). Les références nouvelles sont ajoutées et la couleur importée est appliquée. Pour restaurer intégralement une ancienne version d’une référence connue, examinez et corrigez-la depuis sa fenêtre de gestion : la restauration additive n’écrase pas son contenu local. Les anciennes applications ne lisent pas V4 ; utilisez la version à jour.
+
+Les noms, lieux, désignations, conditionnements et prix sont copiés dans chaque document sélectionné. Un changement du référentiel ou un archivage ne réécrit pas ces copies. Sur un document modifiable, **Actualiser depuis la liste** propose explicitement de remplacer un nom ou les informations d’un lieu ; une confirmation est demandée. Les anciennes saisies libres restent utilisables.
+
+### Vérifications et limites
+
+Les tests utilisent exclusivement des personnes et lieux fictifs. Les 56 tests Node couvrent CSV (accents, guillemets, multilignes, séparateurs, encodages), zéros initiaux, rapprochements, homonymes, états inconnus, packs et arrondis, cycles de catégories, instantanés, contraste et sauvegardes V1 à V4. Les parcours Chromium sous Linux vérifient import/annulation/mise à jour, clavier, sélection multiple, roues crantées sans perte de notes, articles réutilisés après rechargement, lieux et sous-catégories, effectifs et pouvoirs d’AG, couleur, sauvegarde et restauration. Les tests complets des comptes rendus et des PV ont également passé. Une fermeture réelle puis une réouverture de Chromium ont retrouvé les listes et la couleur ; les trois types de PDF ont été générés avec le contraste choisi. Un échec de stockage a été simulé, et la restauration a été vérifiée dans un navigateur vierge puis avec une ancienne sauvegarde.
+
+Il n’y a pas de connexion automatique à Paheko, de synchronisation entre appareils, de réservation des lieux ni de travail simultané. Les formats CSV inconnus se configurent dans l’assistant ; les dates ou libellés non reconnus restent inconnus et sont signalés. Les gros exports réels de plusieurs dizaines de milliers de membres, Safari/Firefox, les lecteurs d’écran et la fenêtre d’impression Windows n’ont pas été testés. Les coordonnées personnelles et sauvegardes ne doivent pas être ajoutées au dépôt Git ; les essais créent leurs fichiers dans des dossiers temporaires.

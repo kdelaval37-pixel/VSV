@@ -20,24 +20,21 @@ export function civilDays(start,end){
 }
 export function powerCheck(pv){
   const c=pv.rules.confirmations;
-  const present=new Set(pv.present.map(p=>norm(p.name)).filter(Boolean));
-  const excused=new Set(pv.excused.map(p=>norm(p.name)).filter(Boolean));
-  const guests=new Set(pv.guests.map(p=>norm(p.name)).filter(Boolean));
-  const donors=new Map(),receivers=new Map();
-  for(const p of pv.powers){if(norm(p.donor))donors.set(norm(p.donor),(donors.get(norm(p.donor))||0)+1);if(norm(p.receiver)&&norm(p.donor)&&p.paid)receivers.set(norm(p.receiver),(receivers.get(norm(p.receiver))||0)+1);}
+  const same=(a,aid,b,bid)=>aid&&bid?aid===bid:norm(a)===norm(b);
+  const has=(list,name,id)=>list.some(p=>same(p.name,p.memberId,name,id));
   const limit=pv.type==='AGO'?pv.rules.ago.proxyLimit:c.ageProxyLimit==='yes'&&c.ageProxyLimitReason.trim()?pv.rules.ago.proxyLimit:c.ageProxyLimit==='no'&&c.ageProxyLimitReason.trim()?Infinity:null;
   const rows=pv.powers.map(p=>{
     const issues=[];if(!norm(p.donor)||!norm(p.receiver))issues.push('Noms du mandant et du mandataire à compléter.');
     if(!p.paid)issues.push('Cotisation du mandant à confirmer.');
-    if(donors.get(norm(p.donor))>1)issues.push('Mandant en double : aucun de ses pouvoirs n’est retenu tant que le doublon subsiste.');
-    if(present.has(norm(p.donor)))issues.push('Mandant déjà compté comme présent.');
-    if(norm(p.donor)&&norm(p.donor)===norm(p.receiver))issues.push('Le mandant et le mandataire sont identiques.');
-    if(excused.has(norm(p.receiver)))issues.push('Mandataire également dans les excusés : présence à vérifier.');
-    if(guests.has(norm(p.receiver)))issues.push('Mandataire indiqué comme invité sans droit de vote : qualité à vérifier.');
+    if(pv.powers.filter(q=>norm(q.donor)&&same(q.donor,q.donorMemberId,p.donor,p.donorMemberId)).length>1)issues.push('Mandant en double : aucun de ses pouvoirs n’est retenu tant que le doublon subsiste.');
+    if(has(pv.present,p.donor,p.donorMemberId))issues.push('Mandant déjà compté comme présent.');
+    if(norm(p.donor)&&same(p.donor,p.donorMemberId,p.receiver,p.receiverMemberId))issues.push('Le mandant et le mandataire sont identiques.');
+    if(has(pv.excused,p.receiver,p.receiverMemberId))issues.push('Mandataire également dans les excusés : présence à vérifier.');
+    if(has(pv.guests,p.receiver,p.receiverMemberId))issues.push('Mandataire indiqué comme invité sans droit de vote : qualité à vérifier.');
     if(count(pv.presentCount)===0&&norm(p.receiver))issues.push('Aucun membre présent déclaré : mandataire présent à vérifier.');
-    if(!present.has(norm(p.receiver))&&!p.receiverConfirmed)issues.push('Mandataire absent de la liste : confirmer sa présence et son droit de vote, ou compléter la liste.');
+    if(!has(pv.present,p.receiver,p.receiverMemberId)&&!p.receiverConfirmed)issues.push('Mandataire absent de la liste : confirmer sa présence et son droit de vote, ou compléter la liste.');
     if(limit===null)issues.push('À vérifier : application à l’AGE de la limite de deux pouvoirs.');
-    else if((receivers.get(norm(p.receiver))||0)>limit)issues.push(`Plus de ${limit} pouvoirs pour ce mandataire : corriger les pouvoirs retenus ; aucun de ses pouvoirs n’est retenu pour le calcul.`);
+    else if(pv.powers.filter(q=>norm(q.donor)&&q.paid&&same(q.receiver,q.receiverMemberId,p.receiver,p.receiverMemberId)).length>limit)issues.push(`Plus de ${limit} pouvoirs pour ce mandataire : corriger les pouvoirs retenus ; aucun de ses pouvoirs n’est retenu pour le calcul.`);
     return {id:p.id,valid:issues.length===0,issues};
   });
   const valid=pv.powers.filter(p=>rows.find(r=>r.id===p.id).valid);
@@ -97,6 +94,8 @@ export function preparationChecks(pv){
   if(total===null||total===0)issues.push('Effectif total des adhérents à jour à renseigner (positif).');
   if(present===null)issues.push('Nombre déclaré de membres présents votants à renseigner.');
   if(named&&present!==null&&named!==present)issues.push(`Liste nominative : ${named} nom(s), contre ${present} présents déclarés. Le nombre déclaré reste inchangé.`);
+  if(pv.present.some(p=>pv.excused.some(q=>p.memberId&&q.memberId?p.memberId===q.memberId:norm(p.name)&&norm(p.name)===norm(q.name))))issues.push('Une personne figure parmi les présents et les excusés : vérifier les listes, sans supprimer automatiquement les homonymes.');
+  if(pv.present.some(p=>pv.guests.some(q=>p.memberId&&q.memberId?p.memberId===q.memberId:norm(p.name)&&norm(p.name)===norm(q.name))))issues.push('Une personne figure parmi les présents votants et les invités sans droit de vote : vérifier sa qualité.');
   const names=pv.present.map(p=>norm(p.name)).filter(Boolean);if(new Set(names).size!==names.length)issues.push('Noms de présents en double : vérifier les homonymes et préciser les noms si nécessaire.');
   if(total!==null&&present!==null&&present+powers.represented>total)issues.push('Présents et représentés dépassent l’effectif adhérent.');
   for(const [key,label] of [['date','date de l’assemblée'],['place','lieu'],['startTime','heure de début'],['chair','présidence de séance'],['secretary','secrétariat de séance'],['convener','personne ou instance ayant convoqué']])if(!pv[key].trim())issues.push(`${label} à compléter.`);
