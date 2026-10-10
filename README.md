@@ -15,6 +15,8 @@ Utilisez toujours la même adresse, le même navigateur et son profil habituel. 
 
 ## 2. Créer et retrouver une fiche
 
+L’application s’ouvre sur **Accueil**, avec vos statistiques et vos trois projets les plus récemment modifiés. Le menu latéral permet de revenir à **Accueil** ou de rejoindre **Fiches projet** ; sur téléphone, ces deux accès se trouvent au-dessus du contenu. Les autres catégories sont indiquées « À venir » et ne sont pas encore utilisables.
+
 Cliquez sur **Créer une fiche projet**, puis saisissez son nom. Le reste est facultatif. Les modifications sont enregistrées automatiquement lorsque les champs sont valides. L’indicateur confirme l’enregistrement ; un message d’erreur signifie que les changements ne sont pas enregistrés. Cliquez sur **Enregistrer maintenant** pour réessayer.
 
 Les dates peuvent rester vides. Les montants et quantités acceptent le point ou la virgule, avec deux décimales au maximum. Chaque dépense est arrondie au centime avant addition. Les nombres de participants et bénévoles sont des entiers positifs ou nuls.
@@ -55,3 +57,5 @@ Budgets plus détaillés, plannings de bénévoles, fiches techniques, bilans, c
 Exécuter `npm test` pour les douze tests automatiques de données, de PDF et de chemins Windows/Linux. Les parcours ont également été vérifiés dans Chromium : création, modification, rechargement, duplication, suppression confirmée ou annulée, lignes budgétaires, centimes, téléchargement/import JSON, import invalide, accents, aperçu, échec de stockage simulé et largeur mobile. Windows, macOS, Safari et Firefox n’ont pas été testés dans cet environnement Linux.
 
 Le PDF multipage a été généré et son contenu contrôlé dans Chromium sous Linux ; le bouton d’export et le chargement du logo ont été vérifiés. La fenêtre native « Microsoft Print to PDF » sous Windows n’a pas pu être testée ici.
+
+La page d’accueil et le menu ont été vérifiés dans Chromium sur ordinateur et en largeur mobile : compteurs, projets récents, accès à la création, retour à une fiche et confirmation avant abandon de changements non sauvegardés.
