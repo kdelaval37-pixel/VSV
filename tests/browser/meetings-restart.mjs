@@ -1,0 +1,36 @@
+import {mkdtemp} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import assert from 'node:assert/strict';
+const {chromium} = await import(process.env.VSV_PLAYWRIGHT_MODULE || 'playwright');
+const profile = await mkdtemp(join(tmpdir(), 'vsv-browser-profile-'));
+const baseUrl = process.env.VSV_TEST_URL || 'http://127.0.0.1:4173';
+const options = {headless:true,args:['--no-sandbox'],
+  ...(process.env.VSV_BROWSER_EXECUTABLE ? {executablePath:process.env.VSV_BROWSER_EXECUTABLE} : {})};
+let context = await chromium.launchPersistentContext(profile, options);
+let page = await context.newPage();
+await page.goto(baseUrl);
+await page.evaluate(async () => {
+  const {project,encode} = await import('/src/model.js');
+  localStorage.setItem('vsv.projects.v1', encode([{...project(),name:'Projet avant fermeture'}]));
+});
+await page.reload();
+await page.locator('[data-nav=meetings]').click();
+await page.locator('#new-meeting').click();
+await page.locator('[data-meeting-field=title]').fill('Réunion conservée');
+await page.locator('#new-point-title').fill('Échanges');
+await page.locator('#add-point').click();
+const notes = 'Dernières notes avant fermeture — café & solidarité.\n- Ne rien perdre';
+await page.locator('[data-point-field=discussion]').fill(notes);
+assert.match(await page.locator('#feedback').innerText(), /Sauvegardé/);
+await context.close();
+context = await chromium.launchPersistentContext(profile, options);
+page = await context.newPage();
+await page.goto(baseUrl);
+await page.locator('[data-nav=meetings]').click();
+await page.getByRole('button',{name:'Ouvrir',exact:true}).click();
+assert.equal(await page.locator('[data-point-field=discussion]').inputValue(), notes);
+await page.locator('[data-nav=projects]').click();
+assert.match(await page.locator('.card').innerText(), /Projet avant fermeture/);
+await context.close();
+console.log('Fermeture réelle de Chromium et réouverture du même profil : dernières notes et projet V1 préservés.');
