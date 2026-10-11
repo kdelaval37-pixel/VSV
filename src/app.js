@@ -1,3 +1,4 @@
+import {setupNavigation} from './navigation-ui.js';
 import {repositories as emptyRepositories,preferences as defaultPreferences,validateRepositories} from './references-model.js';
 import {createReferencesUI,applyAppearance} from './references-ui.js';
 import {installReferenceSelectors} from './reference-selectors.js';
@@ -16,6 +17,7 @@ import {createStocksModule} from './stocks.js';
 import {createCashModule} from './cash.js';
 import {transact} from './transactions.js';
 import {homeView} from './home.js';
+let navigationUI;
 const app=document.querySelector('#app');let projects=[],meetings=[],pvs=[],repositories=emptyRepositories(),preferences=defaultPreferences(),repositoriesSaved=false,current=null,query='',filter='',blocked=false,dirty=false,activePage='home';
 try{const loaded=readAll();({projects,meetings,pvs}=loaded);repositories=loaded.repositories??repositories;repositoriesSaved=!!loaded.repositories;preferences=loaded.preferences??preferences;applyAppearance(preferences);}catch(e){blocked=true;}
 const notice=`<aside>Vos documents et référentiels restent dans ce navigateur et sur cet appareil. Téléchargez régulièrement une sauvegarde : effacer les données du navigateur peut supprimer vos documents et vos listes.</aside>`;
@@ -54,7 +56,7 @@ async function importFile(e){const f=e.target.files[0];if(!f)return;const source
 const meetingModule=createMeetingModule({app,getMeetings:()=>meetings,persist:next=>{writeAll({projects,meetings:next,pvs,repositories,preferences});meetings=next;repositoriesSaved=true;},blocked:()=>blocked,navigation,download,importFile,notice});
 const pvModule=createPvModule({app,getPvs:()=>pvs,persist:next=>{writeAll({projects,meetings,pvs:next,repositories,preferences});pvs=next;repositoriesSaved=true;},blocked:()=>blocked,navigation,download,importFile,notice});
 const referenceUI=createReferencesUI({onUpdate:syncData,getRepositories:()=>repositories,getPreferences:()=>preferences,blocked:()=>blocked,download,importFile,persist:(next,prefs)=>{writeAll({projects,meetings,pvs,repositories:next,preferences:prefs});repositories=next;preferences=prefs;repositoriesSaved=true;}});
-function syncData(data){({projects,meetings,pvs}=data);repositories=data.repositories??repositories;preferences=data.preferences??preferences;repositoriesSaved=!!data.repositories;}
+function syncData(data){({projects,meetings,pvs}=data);repositories=data.repositories??repositories;repositories.suppliers??=[];preferences=data.preferences??preferences;repositoriesSaved=!!data.repositories;}
 const shoppingModule=createShoppingModule({app,navigation,getRepositories:()=>repositories,referenceUI,onUpdate:syncData});
 const stocksModule=createStocksModule({app,navigation,getRepositories:()=>repositories,referenceUI,download,onUpdate:syncData,shopping:shoppingModule});
 const cashModule=createCashModule({app,navigation,getRepositories:()=>repositories,referenceUI,download,onUpdate:syncData});
@@ -64,6 +66,7 @@ window.addEventListener('beforeunload',e=>{if(dirty||meetingModule.hasUnsaved()|
 async function pdf(){try{message('Dans la fenêtre d’impression, choisissez « Enregistrer au format PDF », puis Enregistrer. '+(dirty?'Attention : cette fiche contient des changements non sauvegardés.':''));await exportPdf({...structuredClone(current),actualPurchases:projectActual(readAll().operations??operations(),current.id)});}catch(e){message('Export PDF impossible : '+e.message,true);}}
 
 function navigation(page){
+ navigationUI?.onNavigate();
   activePage=page;if(page!=='projects')current=null;if(page!=='meetings')meetingModule.clear();if(page!=='pvs')pvModule.clear();
   document.querySelectorAll('[data-nav]').forEach(button=>{if(button.dataset.nav===page)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
   document.title='VSV — '+(page==='home'?'Accueil':page==='meetings'?'Comptes rendus':page==='pvs'?'Procès-verbal':page==='settings'?'Paramètres':page==='shopping'?'Liste de courses':page==='stocks'?'Stocks':page==='cash'?'Caisse':'Fiches projet');
@@ -77,9 +80,13 @@ function home(){
   for(const id of ['home-projects','home-all','home-manage'])document.getElementById(id).onclick=dashboard;
   app.querySelectorAll('[data-home-open]').forEach(button=>button.onclick=()=>{current=structuredClone(projects.find(p=>p.id===button.dataset.homeOpen));dirty=false;editor();});
 }
-document.querySelectorAll('[data-nav]').forEach(button=>button.onclick=()=>{
+function goToPage(page){
   if(!leave())return;
   dirty=false;
-  if(button.dataset.nav==='shopping')shoppingModule.list();else if(button.dataset.nav==='stocks')stocksModule.list();else if(button.dataset.nav==='cash')cashModule.list();else if(button.dataset.nav==='home')home();else if(button.dataset.nav==='meetings')meetingModule.list();else if(button.dataset.nav==='pvs')pvModule.list();else if(button.dataset.nav==='settings'){navigation('settings');referenceUI.settings(app);}else dashboard();
+  if(page==='shopping')shoppingModule.list();else if(page==='stocks')stocksModule.list();else if(page==='cash')cashModule.list();else if(page==='home')home();else if(page==='meetings')meetingModule.list();else if(page==='pvs')pvModule.list();else if(page==='settings'){navigation('settings');referenceUI.settings(app);}else dashboard();
   app.focus();window.scrollTo({top:0,behavior:'instant'});
-});
+}
+
+document.querySelectorAll("[data-nav]").forEach(button=>button.onclick=()=>goToPage(button.dataset.nav));
+document.querySelector("#home-logo").onclick=e=>{if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;e.preventDefault();goToPage("home");};
+navigationUI=setupNavigation({collapsed:!!preferences.sidebarCollapsed,persist:async collapsed=>{if(blocked)throw Error("Données illisibles : écriture bloquée pour les préserver.");const r=await transact(d=>{d.repositories??=repositories;d.preferences??=preferences;d.preferences.sidebarCollapsed=collapsed;});syncData(r.data);}});
