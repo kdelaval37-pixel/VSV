@@ -19,7 +19,7 @@ export function validateCollection(data) {
 export function decodeBackup(text) {
   const data=JSON.parse(text);
   if(data?.format==='vsv-projects'&&data.version===1)return validateCollection({projects:decodeProjects(text),meetings:[],pvs:[]});
-  if(data?.format!=='vsv-documents'||![2,3,4,5,6].includes(data.version))throw Error('Format de sauvegarde invalide ou version non prise en charge.');
+  if(data?.format!=='vsv-documents'||![2,3,4,5,6,7].includes(data.version))throw Error('Format de sauvegarde invalide ou version non prise en charge.');
   const collection={projects:data.projects,meetings:data.meetings,pvs:data.version===2?[]:data.pvs};
   if(data.version>=4){if(!data.repositories||!data.preferences)throw Error('Référentiels et préférences manquants.');collection.repositories=data.repositories;collection.preferences=data.preferences;}
   if(data.version>=5){if(!data.operations)throw Error('Stocks et caisse manquants.');collection.operations=data.operations;}
@@ -27,7 +27,7 @@ export function decodeBackup(text) {
 }
 export function encodeBackup(data) {
   const collection={...data,pvs:Object.hasOwn(data,'pvs')?data.pvs:[]};validateCollection(collection);
-  return JSON.stringify({format:'vsv-documents',version:collection.operations?.shoppingNeeds?6:collection.operations?5:collection.repositories?4:3,exportedAt:new Date().toISOString(),projects:collection.projects,meetings:collection.meetings,pvs:collection.pvs,...(collection.repositories?{repositories:collection.repositories,preferences:collection.preferences}: {}),...(collection.operations?{operations:collection.operations}:{})},null,2);
+  return JSON.stringify({format:'vsv-documents',version:collection.operations?.heldOrders||collection.operations?.paymentTransfers||collection.repositories?.articles.some(a=>a.tracking==='volume'||a.ingredient!==undefined)?7:collection.operations?.shoppingNeeds?6:collection.operations?5:collection.repositories?4:3,exportedAt:new Date().toISOString(),projects:collection.projects,meetings:collection.meetings,pvs:collection.pvs,...(collection.repositories?{repositories:collection.repositories,preferences:collection.preferences}: {}),...(collection.operations?{operations:collection.operations}:{})},null,2);
 }
 function mergeDocuments(existing,incoming){const ids=new Set(existing.map(m=>m.id));return [...existing,...incoming.map(m=>{const copy=structuredClone(m);if(ids.has(copy.id)){copy.id=crypto.randomUUID();copy.title+=' (importé)';}ids.add(copy.id);return copy;})];}
 export function mergeBackup(existing,incoming) {

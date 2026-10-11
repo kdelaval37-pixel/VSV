@@ -16,7 +16,7 @@ export function referencePicker(input,{kind,getRepositories,ui,onSelect,used=()=
 }
 export function installReferenceSelectors({app,getDocument,getRepositories,ui,save,render}){
  let scheduled=false;const observer=new MutationObserver(()=>{if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;mount();});});observer.observe(app,{childList:true,subtree:true});
- const buyPreset=a=>{const mode=a.tracking==='weight'?'weight':a.purchaseMode||(Number(a.unitsPerPack)>1?'pack':'unit'),last=a.lastPurchase;return {mode:mode==='pack'?'pack':'free',quantity:'1',unit:last?.unitCost?String(last.unitCost.cents/100):a.price||'0',packs:'1',unitsPerPack:last?.mode==='pack'?String(last.unitsPerPack):a.unitsPerPack||'1',packPrice:last?.packCost?String(last.packCost.cents/100):a.packPrice||'0'};};
+ const buyPreset=a=>{const mode=a.tracking==='weight'?'weight':a.tracking==='volume'?'volume':a.purchaseMode||(Number(a.unitsPerPack)>1?'pack':'unit'),last=a.lastPurchase;return {mode:mode==='pack'?'pack':'free',quantity:'1',unit:last?.unitCost?String(last.unitCost.cents/100):a.purchaseUnitPrice||a.price||'0',packs:'1',unitsPerPack:last?.mode==='pack'?String(last.unitsPerPack):a.unitsPerPack||'1',packPrice:last?.packCost?String(last.packCost.cents/100):a.packPrice||'0'};};
  const articleCopy=a=>{const copy=structuredClone(a);delete copy.photo;return copy;};
  const snap=m=>({id:m.id,name:memberName(m),category:m.category,externalId:m.externalId});
  function participantTarget(input){const d=input.dataset,key=d.addPersonName||d.pvAddPersonName;if(!key)return null;return key;}

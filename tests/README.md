@@ -40,3 +40,16 @@ node tests/browser/references-restart-pdf.mjs
 ```
 
 Avec les mêmes variables Playwright/Chromium et URL que ci-dessus, le premier vérifie l’assistant CSV, les rapprochements, l’annulation, les sélecteurs, les calculs de packs, les lieux, la couleur et les sauvegardes. Le second utilise un profil temporaire persistant pour une fermeture réelle et une réouverture, simule un échec de stockage, contrôle les instantanés et archives, génère les trois types de PDF avec la couleur choisie et restaure la sauvegarde dans un navigateur vierge. Les fenêtres d’impression natives restent remplacées par un témoin. Aucun fichier de membres réels ni profil utilisateur n’est utilisé.
+
+Stocks, courses et caisse :
+
+```sh
+node tests/browser/operations-smoke.mjs
+node tests/browser/purchases-smoke.mjs
+node tests/browser/cash-workflow.mjs
+node tests/browser/cash-print-restart.mjs
+```
+
+Le nouveau parcours `cash-workflow.mjs` couvre le formulaire commun depuis Stocks et Caisse, les boutons désactivés, le suivi au litre, les ingrédients, les trois paiements, l’encaissement direct sans ticket automatique, les attentes et leur reprise, le transfert espèces/carte, les filtres de tickets, la restauration V7, les images, les couleurs et la disposition à 1366×768, 1280×720, 1440×900 et 390×844. Le parcours d’impression relance réellement un profil temporaire et simule un échec de stockage ; il génère un ticket et une synthèse longue avec tous les tickets. Aucun profil ou nom réel n’est utilisé.
+
+`npm test` couvre notamment les transactions métier, l’idempotence, les calculs de packs/poids/litres, les transferts et annulations inverses, les remboursements, les commandes en attente, la fermeture avec attentes, le formulaire commun et les sauvegardes anciennes / V7. Les tests Playwright requièrent une installation de Playwright et un navigateur Chromium disponibles, sans ajouter ces dépendances au lancement de l’application.
