@@ -53,3 +53,14 @@ node tests/browser/cash-print-restart.mjs
 Le nouveau parcours `cash-workflow.mjs` couvre le formulaire commun depuis Stocks et Caisse, les boutons désactivés, le suivi au litre, les ingrédients, les trois paiements, l’encaissement direct sans ticket automatique, les attentes et leur reprise, le transfert espèces/carte, les filtres de tickets, la restauration V7, les images, les couleurs et la disposition à 1366×768, 1280×720, 1440×900 et 390×844. Le parcours d’impression relance réellement un profil temporaire et simule un échec de stockage ; il génère un ticket et une synthèse longue avec tous les tickets. Aucun profil ou nom réel n’est utilisé.
 
 `npm test` couvre notamment les transactions métier, l’idempotence, les calculs de packs/poids/litres, les transferts et annulations inverses, les remboursements, les commandes en attente, la fermeture avec attentes, le formulaire commun et les sauvegardes anciennes / V7. Les tests Playwright requièrent une installation de Playwright et un navigateur Chromium disponibles, sans ajouter ces dépendances au lancement de l’application.
+
+
+Bilans d’action :
+
+```sh
+npm test
+node tests/browser/reviews-smoke.mjs
+node tests/browser/reviews-restart.mjs
+```
+
+Avec les mêmes variables Playwright, Chromium et URL que les autres parcours, ces tests vérifient les critères structurés et le texte ancien, les instantanés, la saisie sans perte lors d’une navigation immédiate, les calculs et propositions indépendantes, la reprise idempotente des sources, l’actualisation confirmée, les avertissements et la réouverture, un échec de stockage simulé, le PDF long (texte et tableaux), les thèmes et largeurs 1920/1280/390/360, ainsi que la sauvegarde V9 et la restauration sans mouvement supplémentaire. Le second ferme réellement le navigateur puis rouvre un profil temporaire pour vérifier la conservation du bilan. Toutes les données sont fictives et les fichiers de contrôle sont écrits dans `/tmp`.
