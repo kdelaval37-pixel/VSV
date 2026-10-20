@@ -1,3 +1,4 @@
+import {record} from './shared/command-context.js';
 import {remaining} from './purchase-model.js';
 import {validateSupplierSnapshot} from './supplier-model.js';
 const roundedRatio=(amount,num,den)=>{const value=(BigInt(amount)*BigInt(num)+BigInt(den)/2n)/BigInt(den);if(value>BigInt(Number.MAX_SAFE_INTEGER))throw Error('Montant trop élevé.');return Number(value);};
@@ -11,7 +12,7 @@ export function orderLine(data,n){
  return {needId:n.id,articleId:a.id,name:n.name,projectId:n.projectId,projectName:n.projectName,supplierId:n.supplierId||'',supplierSnapshot:structuredClone((data.repositories.suppliers??[]).find(s=>s.id===n.supplierId)??n.supplierSnapshot??null),quantity:qty,tracking:n.tracking,unit:n.tracking==='weight'?'kg':n.tracking==='volume'?'l':a.unit||'pièce',plan,total,unitPrice:total===null?null:roundedRatio(total,divisor,qty),priceLabel,priceDate,priceNote};
 }
 export function orderTotals(lines){let total=0n;for(const l of lines)if(l.total!==null)total+=BigInt(l.total);if(total>BigInt(Number.MAX_SAFE_INTEGER))throw Error('Total trop élevé.');return {total:Number(total),partial:lines.some(l=>l.total===null)};}
-export function createOrder(data,{scope='global',supplierId='',groupSuppliers=false,observations='',token=crypto.randomUUID()}={}){
+function impl_createOrder(data,{scope='global',supplierId='',groupSuppliers=false,observations='',token=crypto.randomUUID()}={}){
  data.operations.purchaseOrders??=[];const existing=data.operations.purchaseOrders.find(o=>o.id===token);if(existing)return existing;
  if(!['global','supplier'].includes(scope))throw Error('Périmètre invalide.');const needs=data.operations.shoppingNeeds.filter(n=>remaining(n)>0&&(scope==='global'||(n.supplierId||'')===supplierId));if(!needs.length)throw Error('Aucun article restant dans ce périmètre.');
  const date=new Date().toISOString(),lines=needs.map(n=>orderLine(data,n));const order={id:token,reference:'VSV-BC-'+date.slice(0,10).replaceAll('-','')+'-'+token.toUpperCase(),date,scope,supplierId:scope==='supplier'?supplierId:'',supplierSnapshot:scope==='supplier'?structuredClone(lines[0].supplierSnapshot):null,groupSuppliers:scope==='global'&&!!groupSuppliers,observations,lines,...orderTotals(lines)};
@@ -24,3 +25,5 @@ export function validateOrders(orders){
   const t=orderTotals(o.lines);if(t.total!==o.total||t.partial!==o.partial)throw Error('Total du bon incohérent.');
  }return orders;
 }
+
+export const createOrder=(...args)=>record('createOrder',args,()=>impl_createOrder(...args));

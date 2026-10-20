@@ -1,3 +1,4 @@
+import {shared} from './shared/runtime.js';
 import {themeStyle} from './theme.js';
 import {documentView,esc} from './document.js';
 import {validate} from './model.js';
@@ -16,7 +17,7 @@ export async function exportPdf(project){
   return printHtml(html);
 }
 export async function exportContentPdf(content,title='VSV'){const color=getComputedStyle(document.documentElement).getPropertyValue('--header-color').trim();return printHtml(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><base href="${esc(new URL('.',location.href).href)}"><title>${esc(title)}</title><link rel="stylesheet" href="src/style.css"></head><body class="pdf-body" style="${themeStyle(color)}">${content}</body></html>`);}
-async function printHtml(html){
+async function printHtml(html){if(shared()){const markers=[...new Set(html.match(/vsv-file:[a-f0-9]{64}\.(?:png|jpg|webp)/g)||[])];for(const marker of markers)html=html.replaceAll(marker,await shared().photo(marker));}
   const frame=document.createElement('iframe');
   frame.title='Document prêt pour export PDF';
   frame.style.cssText='position:fixed;left:-10000px;top:0;width:900px;height:1200px;border:0';
