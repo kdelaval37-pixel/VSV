@@ -1,0 +1,4 @@
+let context=null,depth=0;
+export function capture(fn){if(context)throw Error('Transaction imbriquée interdite.');const frames=[],commands=[];context={frames,commands};try{return {result:fn(),frames,commands};}finally{context=null;depth=0;}}
+function serial(value){if(value&&typeof value==='object'&&value.elements){const elements={};for(const k of ['inventoryConfirmed','unknownCost','ingredient','excludeSale','needPurchase'])elements[k]={checked:!!value.elements[k]?.checked};return {elements};}return structuredClone(value);}
+export function record(name,args,fn){if(!context||depth)return fn();const before=structuredClone(args[0]);depth++;try{const result=fn();context.commands.push({name,args:args.slice(1).map(serial)});context.frames.push({before,after:structuredClone(args[0])});return result;}finally{depth--;}}

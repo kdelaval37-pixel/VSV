@@ -4,3 +4,9 @@ node_modules/
 *.csv
 VSV-sauvegarde-*.json
 .private-data/
+
+dist/
+.env
+.env.*
+!.env.example
+supabase/.temp/

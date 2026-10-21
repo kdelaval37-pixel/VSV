@@ -64,3 +64,16 @@ node tests/browser/reviews-restart.mjs
 ```
 
 Avec les mêmes variables Playwright, Chromium et URL que les autres parcours, ces tests vérifient les critères structurés et le texte ancien, les instantanés, la saisie sans perte lors d’une navigation immédiate, les calculs et propositions indépendantes, la reprise idempotente des sources, l’actualisation confirmée, les avertissements et la réouverture, un échec de stockage simulé, le PDF long (texte et tableaux), les thèmes et largeurs 1920/1280/390/360, ainsi que la sauvegarde V9 et la restauration sans mouvement supplémentaire. Le second ferme réellement le navigateur puis rouvre un profil temporaire pour vérifier la conservation du bilan. Toutes les données sont fictives et les fichiers de contrôle sont écrits dans `/tmp`.
+
+
+Partage Supabase (aucun accès à la base réelle) :
+
+```sh
+npm test
+npm run test:sql
+npm run test:shared:browser
+```
+
+`test:sql` démarre puis supprime un PostgreSQL 17 Docker temporaire. Le schéma Auth/Storage minimal sert aux tests RLS ; les migrations de l’application sont exécutées intégralement. Une concurrence réelle via les fonctions SQL vérifie la vente du dernier article et le réessai sans doublon. `test:shared:browser` lance des serveurs locaux, l’authentification fictive et un protocole Realtime de test, puis utilise des contextes Chromium séparés. Il couvre connexion, invitation, réinitialisation, reprise de document, conflit, coupure, vérification de l’opération, stock et deux paniers concurrents, suspension, déconnexion et responsive. Les services Supabase hébergés et le SMTP réel ne sont jamais appelés. Voir le guide d’installation pour les vérifications manuelles restantes.
+
+Après `npm run build:pages`, `node tests/browser/headers.mjs` vérifie également que les en-têtes CSP de la sortie Cloudflare permettent encore le formulaire local et l’impression PDF en iframe.

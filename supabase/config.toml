@@ -1,0 +1,3 @@
+project_id = "vsv-shared-dev"
+[functions.vsv-api]
+verify_jwt = false

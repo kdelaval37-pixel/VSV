@@ -1,3 +1,6 @@
+import {shared} from './shared/runtime.js';
+import {createArticle,saveArticle} from './article-model.js';
+export {createArticle,saveArticle} from './article-model.js';
 // Formulaire unique : tous les points d’entrée utilisent ces champs et règles.
 import {esc} from './document.js';
 import {cents} from './pack.js';
@@ -33,25 +36,8 @@ export function bindArticleForm(root,initialPhoto='',{getRepositories,ui}={}){
  form.elements.photoFile.onchange=async e=>{const button=form.querySelector('[data-submit]');button.disabled=true;try{const file=e.target.files[0];if(!file)return;if(file.size>8000000||!['image/jpeg','image/png','image/webp'].includes(file.type))throw Error('Photo : JPEG, PNG ou WebP, maximum 8 Mo.');const image=await createImageBitmap(file),scale=Math.min(1,480/Math.max(image.width,image.height)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.width*scale));canvas.height=Math.max(1,Math.round(image.height*scale));canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);image.close();photo=canvas.toDataURL('image/webp',.7);if(photo.length>300000)throw Error('Photo trop volumineuse après réduction.');form.querySelector('[data-photo]').src=photo;form.querySelector('[data-photo]').hidden=false;}catch(error){form.querySelector('[data-status]').textContent=error.message;}finally{button.disabled=false;}};
  return ()=>photo;
 }
-function stockPlace(data,p){if(p.placeId)return p.placeId;let general=data.repositories.places.find(p=>p.id==='vsv-stock-general');if(!general){general={...place(),id:'vsv-stock-general',name:'Stock général (sans lieu précisé)'};data.repositories.places.push(general);}return general.id;}
-export function saveArticle(data,id,p,f,photo){
- const a=data.repositories.articles.find(x=>x.id===id);if(!p.name.trim())throw Error('Le nom est obligatoire.');if(!['consumable','reusable'].includes(p.nature))throw Error('Choisissez explicitement la nature.');
- if((a.stockMode||'tracked')!==p.stockMode)changeStockMode(data,id,p.stockMode,{inventoryConfirmed:f.elements.inventoryConfirmed?.checked||false,quantity:p.modeInventory,placeId:p.placeId||stockPlace(data,p)});
- const tracking=p.stockMode==='untracked'?'unit':['weight','volume'].includes(p.purchaseMode)?p.purchaseMode:'unit';
- if(tracking!==(a.tracking||'unit')&&(data.operations.movements.some(m=>m.articleId===id)||data.operations.reservations.some(r=>r.articleId===id)||data.operations.shoppingNeeds?.some(n=>n.articleId===id)))throw Error('Le passage unités / poids / volume est impossible avec un historique existant. Créez une référence distincte.');
- const cost=p.stockMode==='tracked'&&!f.elements.unknownCost.checked?purchaseCalc(p):null;
- const ingredient=f.elements.ingredient.checked,excluded=f.elements.excludeSale.checked||ingredient||tracking!=='unit';
- Object.assign(a,{defaultSupplierId:p.defaultSupplierId||'',name:p.name.trim(),description:p.description,categoryId:p.categoryId,nature:p.nature,stockMode:p.stockMode,purchaseMode:p.stockMode==='untracked'?'unit':p.purchaseMode,tracking,unit:p.stockMode==='untracked'?(a.unit||'pièce'):tracking==='weight'?'kg':tracking==='volume'?'l':p.unit||'pièce',unitsPerPack:p.purchaseMode==='pack'?p.unitsPerPack:'',purchaseUnitPrice:cost?.unitCost?String(cost.unitCost.cents/100):a.purchaseUnitPrice||'',costQuantity:p.quantity,costQuantityUnit:p.quantityUnit,costPacks:p.packs,packPrice:cost?.packCost?String(cost.packCost.cents/100):a.packPrice,costSource:p.priceSource,costPrice:f.elements.unknownCost.checked?'':p.knownPrice,salePrice:p.salePrice,estimatedCost:p.estimatedCost,ingredient:ingredient?'yes':'no',forSale:excluded?'no':'yes',preferredPlaceId:p.placeId||'',photo});
- if(f.elements.needPurchase.checked&&p.stockMode==='tracked')addNeed(data,{...p,articleId:id,unknownCost:f.elements.unknownCost.checked});return a;
-}
-export function createArticle(data,a,p,f,photo){
- if(data.repositories.articles.some(x=>x.id===a.id))throw Error('Article déjà enregistré.');data.repositories.articles.push({...a,stockMode:p.stockMode,tracking:p.stockMode==='tracked'&&['weight','volume'].includes(p.purchaseMode)?p.purchaseMode:'unit'});
- const saved=saveArticle(data,a.id,p,f,photo);
- if(p.stockMode==='tracked'&&p.initialQuantity?.trim()){const m=addStock(data,{articleId:a.id,placeId:stockPlace(data,p),purchaseMode:saved.tracking==='unit'?'unit':saved.tracking,quantity:p.initialQuantity,quantityUnit:saved.tracking==='volume'?'l':'kg',unknownCost:true,origin:'Stock initial',date:localTime(),note:'Stock déjà possédé à la création'});m.cost=p.initialCost.trim()===''?null:cents(p.initialCost);}
- return saved;
-}
 export function openArticleEditor({getRepositories,onUpdate,defaults={},value=null,onSaved=()=>{},blocked=()=>false,ui}){
- const a=value?structuredClone(value):{...article(),...defaults},isNew=!value;
+ if(value)shared()?.pinRecord('vsv_references','articles',value.id);const a=value?structuredClone(value):{...article(),...defaults},isNew=!value;
  const d=document.createElement('dialog');d.className='reference-dialog';d.setAttribute('aria-label',isNew?'Ajouter un article':'Modifier un article');d.innerHTML=`<div class="heading"><h2>${isNew?'Ajouter':'Modifier'} un article</h2><button type="button" class="secondary" data-close>Annuler</button></div><form class="common-article-form"><div class="grid">${articleForm(a,getRepositories(),isNew)}</div><p data-status role="status"></p><button data-submit>Enregistrer${isNew?' l’article':' les informations'}</button></form>`;document.body.append(d);
  d.querySelector('[data-close]').onclick=()=>d.remove();d.oncancel=()=>d.remove();const f=d.querySelector('form'),photo=bindArticleForm(f,a.photo||'',{getRepositories:()=>readAll().repositories||getRepositories(),ui});
  f.onsubmit=async e=>{e.preventDefault();const b=f.querySelector('[data-submit]');if(b.disabled)return;b.disabled=true;try{if(blocked())throw Error('Écriture bloquée pour préserver les données illisibles.');const p=Object.fromEntries(new FormData(f)),r=await transact(data=>{data.repositories??=getRepositories();data.preferences??=preferences();data.operations??=operations();return isNew?createArticle(data,a,p,f,photo()):saveArticle(data,a.id,p,f,photo());});onUpdate(r.data);d.remove();window.dispatchEvent(new CustomEvent('vsv-references-updated'));onSaved(structuredClone(r.result));}catch(error){f.querySelector('[data-status]').textContent='Non enregistré : '+error.message;b.disabled=false;}};d.showModal();return d;

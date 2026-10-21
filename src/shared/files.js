@@ -1,0 +1,3 @@
+export const hash=async value=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',typeof value==='string'?new TextEncoder().encode(value):value))].map(b=>b.toString(16).padStart(2,'0')).join('');
+
+export function fileType(bytes){if(bytes.length>=8&&[137,80,78,71,13,10,26,10].every((v,i)=>bytes[i]===v))return ['image/png','png'];if(bytes[0]===255&&bytes[1]===216&&bytes[2]===255)return ['image/jpeg','jpg'];if(new TextDecoder().decode(bytes.slice(0,4))==='RIFF'&&new TextDecoder().decode(bytes.slice(8,12))==='WEBP')return ['image/webp','webp'];if(new TextDecoder().decode(bytes.slice(0,5))==='%PDF-')return ['application/pdf','pdf'];throw Error('Format de fichier refusé. PNG, JPEG, WebP ou PDF uniquement.');}

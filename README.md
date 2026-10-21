@@ -1,5 +1,7 @@
 # VSV — Veille Solidaire de Vierzon
 
+**Évolution partagée préparée, non déployée :** connexion Supabase, documents et opérations partagés. Suivez le [guide d’installation en français](docs/INSTALLATION-PARTAGE.md) avant toute activation. Les instructions locales ci-dessous restent valables pour l’ancien fonctionnement sur `localhost`.
+
 Une application locale pour les projets, réunions, assemblées générales, bilans d’action, référentiels, stocks et caisses d’événements de l’association, sans compte ni service payant.
 
 ## 1. Lancer l’application
