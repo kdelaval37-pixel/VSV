@@ -1,0 +1,4 @@
+// Identité Paheko : texte exact après retrait des espaces de bord, jamais converti en nombre.
+export function pahekoId(value){if(typeof value!=='string')throw Error('L’identifiant Paheko doit rester du texte.');const id=value.trim();if(id.length>200)throw Error('Identifiant Paheko trop long (200 caractères maximum).');return id;}
+export const sameMember=(a,b)=>!!a&&!!b&&[...new Set([...Object.keys(a),...Object.keys(b)])].every(k=>JSON.stringify(a[k])===JSON.stringify(b[k]));
+export function assertMemberUniqueness(members){const known=new Map();for(const m of members){const external=pahekoId(m.externalId);if(!external)continue;const old=known.get(external);if(old&&old.id!==m.id)throw Error('Identifiant Paheko déjà utilisé par une autre fiche. Import refusé : comparez les fiches, sans fusion automatique.');known.set(external,m);}return members;}

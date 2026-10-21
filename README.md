@@ -330,3 +330,7 @@ Vérifications de cette mise à jour : **108 tests de données réussis**, tests
 Le menu regroupe AG, Réunion, Projet et Gestion. Les convocations d’AG (dont AG mixtes) et invitations de réunion permettent de préparer un PV ou compte rendu avec une copie versionnée de l’ordre annoncé, sans envoi automatique. Les données utilisent les mêmes droits et conflits Supabase que les autres documents. Sauvegarde V11 compatible avec les imports antérieurs.
 
 **Installation de test, migration SQL, fonction et site : [guide VSV-TEST](docs/VSV-TEST-CONVOCATIONS.md).** Les délais des premières convocations sont vérifiés sur les articles 10 et 11 des statuts fournis ; les secondes convocations gardent des réserves ciblées. Voir le [correctif des délais pour VSV-TEST](docs/DELAIS-CONVOCATIONS.md). Aucune certification juridique globale n’est affichée.
+
+### Protection des identités Paheko
+
+Le correctif `fix/doublons-adherents` conserve les UUID lors des mises à jour CSV, distingue les fiches inchangées et revérifie l’import côté serveur. Une migration SQL ajoute l’unicité des numéros non vides et protège les suppressions logiques ; elle ne nettoie ni ne restaure de fiche. Les anciennes sauvegardes contenant des doublons sont refusées explicitement. [Diagnostic, vérifications et installation VSV-TEST](docs/DOUBLONS-ADHERENTS.md).
