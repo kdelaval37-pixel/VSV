@@ -1,6 +1,7 @@
+import {navigate} from './navigation.mjs';
 import {mkdir} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const {chromium}=await import(process.env.VSV_PLAYWRIGHT_MODULE||'playwright');const browser=await chromium.launch({headless:true,args:['--no-sandbox'],executablePath:process.env.VSV_BROWSER_EXECUTABLE||'/usr/bin/chromium'});const c=await browser.newContext({viewport:{width:390,height:844},colorScheme:'dark'});const p=await c.newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());await p.goto(process.env.VSV_TEST_URL||'http://127.0.0.1:4178');
-const nav=async n=>{if(!await p.locator(`[data-nav=${n}]`).isVisible())await p.locator('#menu-toggle').click();await p.locator(`[data-nav=${n}]`).click();};
+const nav=id=>navigate(p,id);
 for(const n of ['projects','meetings','pvs']){await nav(n);const create=p.locator('#create,[data-new],#new-meeting,#new-pv');await create.first().click();await p.waitForTimeout(80);assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),n+' formulaire déborde');}
 await nav('stocks');await p.locator('#stock-create').click();assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));assert.ok(await p.locator('dialog').evaluate(e=>e.getBoundingClientRect().right<=innerWidth));await p.locator('dialog [data-close]').click();await mkdir('/tmp/vsv-orders',{recursive:true});await p.screenshot({path:'/tmp/vsv-orders/stocks-mobile-sombre.png',fullPage:true});assert.deepEqual(errors,[]);console.log('Formulaires projet, réunion, PV et article : mobile sombre OK');await browser.close();

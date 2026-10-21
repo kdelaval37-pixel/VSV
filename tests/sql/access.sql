@@ -3,6 +3,7 @@ begin;
 insert into auth.users(id,email)values('11111111-1111-4111-8111-111111111111','a@example.invalid'),('22222222-2222-4222-8222-222222222222','b@example.invalid'),('33333333-3333-4333-8333-333333333333','admin@example.invalid'),('44444444-4444-4444-8444-444444444444','outside@example.invalid');
 insert into public.vsv_access(user_id,technical_admin)values('11111111-1111-4111-8111-111111111111',false),('22222222-2222-4222-8222-222222222222',false),('33333333-3333-4333-8333-333333333333',true);
 insert into public.vsv_documents(kind,id,payload)values('projects','fictif','{"id":"fictif"}');
+insert into public.vsv_documents(kind,id,payload)values('convocations','convocation-fictive','{"id":"convocation-fictive"}'),('invitations','invitation-fictive','{"id":"invitation-fictive"}');
 insert into storage.objects(bucket_id,name)values('vsv-private','fictif.png');
 set local role anon;
 do $$begin begin perform * from public.vsv_documents;raise exception 'ÉCHEC anonyme autorisé';exception when insufficient_privilege then null;end;end$$;
@@ -13,7 +14,7 @@ do $$begin if exists(select 1 from public.vsv_documents)then raise exception 'É
 reset role;
 select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
 set local role authenticated;
-do $$begin if (select count(*) from public.vsv_documents)<>1 then raise exception 'ÉCHEC lecture active';end if;if (select count(*) from storage.objects)<>1 then raise exception 'ÉCHEC lecture fichier actif';end if;
+do $$begin if (select count(*) from public.vsv_documents)<>3 then raise exception 'ÉCHEC lecture active';end if;if (select count(*) from storage.objects)<>1 then raise exception 'ÉCHEC lecture fichier actif';end if;
 begin insert into storage.objects(bucket_id,name)values('vsv-private','direct.png');raise exception 'ÉCHEC fichier écrit directement';exception when insufficient_privilege then null;end;
 begin update public.vsv_access set technical_admin=true where user_id=auth.uid();raise exception 'ÉCHEC auto-promotion';exception when insufficient_privilege then null;end;
 begin perform public.vsv_set_access(auth.uid(),'22222222-2222-4222-8222-222222222222',false);raise exception 'ÉCHEC RPC admin publique';exception when insufficient_privilege then null;end;

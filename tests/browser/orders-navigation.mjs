@@ -1,10 +1,11 @@
+import {navigate} from './navigation.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,readFile} from 'node:fs/promises';
 const {chromium}=await import(process.env.VSV_PLAYWRIGHT_MODULE||'playwright');
 const browser=await chromium.launch({headless:true,args:['--no-sandbox'],executablePath:process.env.VSV_BROWSER_EXECUTABLE||'/usr/bin/chromium'}),context=await browser.newContext({viewport:{width:1366,height:768}}),page=await context.newPage(),errors=[];
 page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
 const base=process.env.VSV_TEST_URL||'http://127.0.0.1:4178';await context.addInitScript(()=>{window.print=()=>{window.__printed=true;};});await page.goto(base);
-const nav=async name=>{if(!await page.locator(`[data-nav=${name}]`).isVisible())await page.locator('#menu-toggle').click();await page.locator(`[data-nav=${name}]`).click();};
+const nav=id=>navigate(page,id);
 const modal=()=>page.locator('dialog').last();const data=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('vsv.projects.v1')));
 const choose=async(selector,text)=>{const input=page.locator(selector);await input.fill(text);await input.press('ArrowDown');await input.press('Enter');};
 await page.evaluate(async()=>{const {repositories,preferences,article,place}=await import('/src/references-model.js'),{operations}=await import('/src/operations-model.js'),{addNeed}=await import('/src/purchase-model.js'),{writeAll}=await import('/src/storage.js');const d={projects:[],meetings:[],pvs:[],repositories:repositories(),preferences:preferences(),operations:operations()},a={...article(),name:'Boisson fictive'},p={...place(),name:'Dépôt fictif'};d.repositories.articles.push(a);d.repositories.places.push(p);addNeed(d,{articleId:a.id,purchaseMode:'pack',packs:'3',unitsPerPack:'6',priceSource:'total',knownPrice:'27'});addNeed(d,{articleId:a.id,purchaseMode:'unit',quantity:'2',unknownCost:true});writeAll(d);});await page.reload();

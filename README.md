@@ -324,3 +324,9 @@ Le solde signifie **Recettes moins dépenses enregistrées**. Les achats partag�
 La sauvegarde complète comprend les bilans, leurs instantanés et les critères structurés. Les anciennes sauvegardes restent importables. Une ancienne version de l’application ne peut pas lire les sauvegardes V9 : conservez la version à jour. L’application reste locale, sans synchronisation entre appareils.
 
 Vérifications de cette mise à jour : **108 tests de données réussis**, tests des seuils, centimes, inconnus distincts de zéro, achats partagés, remboursements et imports sans doublon ; parcours Chromium de la rédaction, finalisation/réouverture, conservation après rechargement et fermeture réelle, panne de stockage simulée, sauvegarde/restauration, largeur mobile et bureau, PDF A4 long avec en-têtes de tableau répétés et pagination. Les fenêtres d’impression natives sont remplacées par un témoin dans les tests ; le document HTML d’export est aussi généré en véritable PDF. Edge/Windows et une imprimante physique n’ont pas été testés directement. La valorisation des consommations et la ventilation de fréquentation par créneau ne sont pas ajoutées ; le bilan de fréquentation utilise un total unique, sans collecte nominative.
+
+### Convocations et invitations (branche de préparation VSV-TEST)
+
+Le menu regroupe AG, Réunion, Projet et Gestion. Les convocations d’AG (dont AG mixtes) et invitations de réunion permettent de préparer un PV ou compte rendu avec une copie versionnée de l’ordre annoncé, sans envoi automatique. Les données utilisent les mêmes droits et conflits Supabase que les autres documents. Sauvegarde V11 compatible avec les imports antérieurs.
+
+**Installation de test, migration SQL, fonction et site : [guide VSV-TEST](docs/VSV-TEST-CONVOCATIONS.md).** Aucun statut juridique n’est certifié : les statuts n’étaient pas disponibles pour comparaison.
