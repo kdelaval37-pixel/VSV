@@ -85,3 +85,12 @@ npm run build:pages
 ```
 
 Le test SQL utilise un PostgreSQL jetable Docker, jamais la base réelle. Le navigateur partagé utilise une API/Auth/Realtime simulée localement ; ce n’est pas un test de votre Supabase hébergé. `tests/browser/notices.mjs` teste les écrans localement (serveur `VSV_PORT=4187 npm start`, puis `node tests/browser/notices.mjs`).
+
+### Résultats de cette livraison
+
+- 130 tests Node réussis : modèles, délais limites/manquants, secondes convocations, AG mixtes, sources indépendantes, imports sans doublons et compatibilité des sauvegardes, modules historiques.
+- PostgreSQL 17 jetable : migration appliquée, nouveaux types inclus dans les lectures RLS, refus des visiteurs/comptes non autorisés et suspendus, interdiction d’écritures directes, atomicité et concurrence de caisse.
+- Chromium Linux : parcours des deux outils, comparaison avant récupération et annulation, rechargement, séparation invités/présents, menu mobile ; partage et conflit dans deux contextes avec serveur simulé ; régressions des PV, comptes rendus et bilans ; éditeurs mobiles en thème sombre.
+- Impression et PDF réel : convocation mixte longue de 13 pages A4, logo chargé, dernier point présent, statut brouillon inchangé. Contrôle visuel de la première page ; toutes les pages n’ont pas été relues visuellement une à une.
+- Construction standard et construction de test avec coordonnées fictives/CSP adaptées ; contrôle Deno de `vsv-api` réussi.
+- Non effectués : comparaison avec les statuts absents, migration et déploiement réels, essais de votre Supabase sur deux appareils physiques, Safari/iPhone/Android et Windows/macOS. La mise en service partagée ne doit donc pas être considérée comme vérifiée en ligne.
