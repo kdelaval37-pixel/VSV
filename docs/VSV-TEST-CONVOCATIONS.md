@@ -1,5 +1,7 @@
 # Convocations, invitations et menu — installation sur VSV-TEST
 
+**Mise à jour du 21 octobre 2026 : les statuts ont maintenant été fournis et lus.** Les délais de première AGO/AGE sont vérifiés (articles 10 et 11). Les anciennes réserves générales ci-dessous décrivent la livraison initiale ; consulter le [correctif des délais et ses étapes VSV-TEST](DELAIS-CONVOCATIONS.md) pour les règles désormais appliquées.
+
 Cette branche ne doit pas être fusionnée dans `main` pour cet essai. Aucun envoi de courrier n’est ajouté. Ne changez pas la branche de production de vsv-byl.pages.dev.
 
 ## Première action : sauvegarder et identifier l’environnement de test
