@@ -1,6 +1,6 @@
 import {validateDocumentReferences} from './references-model.js';
 export const meetingStatuses = ['Brouillon', 'En cours', 'Finalisé'];
-export const pointStatuses = ['À aborder', 'En cours', 'Discuté', 'Non discuté'];
+export const pointStatuses = ['À aborder', 'En cours', 'Discuté', 'Non discuté', 'Reporté'];
 export const meetingFields = [
   ['title', 'Titre de la réunion', 'text'], ['place', 'Lieu', 'text'],
   ['date', 'Date', 'date'], ['startTime', 'Heure de début', 'time'],
@@ -23,10 +23,10 @@ export function hasNotes(p) {
   return Boolean(p.discussion.trim() || p.decisions.trim() || p.actions.some(a => a.text.trim() || a.owner.trim() || a.due));
 }
 export function unresolvedNotes(m) {
-  return m.agenda.filter(p => p.status === 'Non discuté' && hasNotes(p) && p.includeNotes === null);
+  return m.agenda.filter(p => ['Non discuté','Reporté'].includes(p.status) && hasNotes(p) && p.includeNotes === null);
 }
 export const pendingPoints = m => m.agenda.filter(p => ['À aborder', 'En cours'].includes(p.status));
-export const notesVisible = p => p.status !== 'Non discuté' || p.includeNotes === true;
+export const notesVisible = p => !['Non discuté','Reporté'].includes(p.status) || p.includeNotes === true;
 export function duplicateMeeting(original, structureOnly = false) {
   const m = structuredClone(original);
   m.id = crypto.randomUUID(); m.title += structureOnly ? ' (prochaine réunion)' : ' (copie)';
@@ -74,7 +74,7 @@ export function validateMeeting(m) {
   }
   list(m.agenda); m.agenda.forEach(p => {
     if (!p) throw Error('Point invalide.');unique(p.id);
-    for (const key of ['title','discussion','decisions','reportNote']) text(p[key]);
+    for (const key of ['title','discussion','decisions','reportNote']) text(p[key]);for(const key of ['description','speaker','duration','sourcePointId'])if(p[key]!==undefined)text(p[key]);
     if (!pointStatuses.includes(p.status) || ![null,true,false].includes(p.includeNotes)) throw Error('État du point invalide.');
     list(p.actions);p.actions.forEach(a => {if(!a)throw Error('Action invalide.');unique(a.id);text(a.text);text(a.owner);dateValue(a.due);});
   });

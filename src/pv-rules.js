@@ -1,7 +1,10 @@
+import {civilDays} from './civil-date.js';
+export {civilDays} from './civil-date.js';
+import {delayCheck,delaySummary,civilLabel,noticeRuleSource,noticeConvention} from './ag-notice-rules.js';
 // Les règles et confirmations sont copiées dans chaque PV, jamais lues dans un réglage global.
 export function statutoryRules() {
-  return {version:1,source:'Règles fournies pour VSV : articles 10 (AGO) et 11 (AGE).',
-    convention:'Différence de dates civiles : jour de départ exclu, jour de l’assemblée inclus ; pas de jours francs.',
+  return {version:1,source:noticeRuleSource,
+    convention:noticeConvention,
     ago:{noticeDays:15,quorumDivisor:4,proxyLimit:2,majority:'simple',secondDays:7},
     age:{noticeDays:15,quorumDivisor:3,majority:'two-thirds'},secondNoQuorum:true,
     confirmations:{initialRepresented:'',initialRepresentedReason:'',ageProxyLimit:'',ageProxyLimitReason:'',
@@ -13,11 +16,6 @@ export function count(value) {
   return Number(value);
 }
 export const norm=name=>name.trim().normalize('NFC').toLocaleLowerCase('fr');
-export function civilDays(start,end){
-  if(!start||!end)return null;
-  const a=Date.parse(start+'T00:00:00Z'),b=Date.parse(end+'T00:00:00Z');
-  return Number.isFinite(a)&&Number.isFinite(b)?Math.round((b-a)/86400000):null;
-}
 export function powerCheck(pv){
   const c=pv.rules.confirmations;
   const same=(a,aid,b,bid)=>aid&&bid?aid===bid:norm(a)===norm(b);
@@ -41,37 +39,21 @@ export function powerCheck(pv){
   return {rows,valid,represented:valid.length,pending:rows.some(r=>!r.valid),limit};
 }
 function result(state,text,details=[]){return {state,text,details};}
+// Même moteur pour les PV directs, les PV issus d’une convocation et leurs anciennes copies.
+export function pvNoticeInput(pv){
+ const source=pv.source?.kind==='convocations'?pv.source.snapshot:null,c=pv.rules.confirmations;
+ const secondAge=c.secondAgeDelay;
+ const rules={...source?.rules};
+ // Une interprétation explicitement saisie dans le PV est propre à ce PV ; la source reste intacte.
+ if(!source||c.secondAgoOrigin||c.secondAgoOriginReason)rules.secondAGO={verified:!!c.secondAgoOrigin,days:'7',origin:c.secondAgoOrigin==='first-assembly'?'first':c.secondAgoOrigin==='second-notice'?'send':'',reason:c.secondAgoOriginReason};
+ if(!source||secondAge||c.secondAgeDelayReason)rules.secondAGE={verified:!!secondAge,days:secondAge==='15-notice'?'15':['7-first','7-notice'].includes(secondAge)?'7':c.secondAgeDays,origin:secondAge==='7-first'||secondAge==='custom'&&c.secondAgeOrigin==='first-assembly'?'first':['15-notice','7-notice'].includes(secondAge)||secondAge==='custom'&&c.secondAgeOrigin==='second-notice'?'send':'',reason:c.secondAgeDelayReason};
+ return {...source,kind:'convocations',type:source?.type==='MIXTE'?'MIXTE':pv.type,convocation:pv.convocation,date:pv.date,actualSendDate:pv.convocation==='second'?pv.secondNoticeDate:pv.noticeDate,plannedSendDate:'',firstDate:pv.firstDate,firstQuorum:pv.firstQuorum==='insufficient',rules};
+}
 export function noticeCheck(pv){
-  const c=pv.rules.confirmations;
-  let start=pv.noticeDate,minimum=pv.type==='AGO'?pv.rules.ago.noticeDays:pv.rules.age.noticeDays;
-  let origin='Date d’envoi effectif de la première convocation';
-  const issues=[];
-  if(pv.convocation==='second'){
-    if(!pv.firstDate)issues.push('Date de la première assemblée à renseigner.');
-    if(pv.firstQuorum!=='insufficient')issues.push('Constat de quorum insuffisant à confirmer.');
-    if(!pv.secondNoticeDate)issues.push('Date d’envoi de la seconde convocation à renseigner.');
-    if(pv.firstDate&&pv.date&&civilDays(pv.firstDate,pv.date)<=0)issues.push('La seconde assemblée doit être postérieure à la première.');
-    if(pv.firstDate&&pv.secondNoticeDate&&civilDays(pv.firstDate,pv.secondNoticeDate)<0)issues.push('La seconde convocation précède la première assemblée : à vérifier.');
-    if(pv.type==='AGO'){
-      minimum=pv.rules.ago.secondDays;
-      if(!c.secondAgoOrigin||!c.secondAgoOriginReason.trim())return result('pending','À vérifier : point de départ du délai de 7 jours de la seconde AGO.',issues);
-      start=c.secondAgoOrigin==='first-assembly'?pv.firstDate:pv.secondNoticeDate;
-      origin=c.secondAgoOrigin==='first-assembly'?'Première assemblée':'Envoi de la seconde convocation';
-    }else{
-      if(!c.secondAgeDelay||!c.secondAgeDelayReason.trim())return result('pending','À vérifier : délai applicable à la seconde AGE « dans les mêmes conditions ».',issues);
-      if(c.secondAgeDelay==='15-notice'){minimum=pv.rules.age.noticeDays;start=pv.secondNoticeDate;origin='Envoi de la seconde convocation';}
-      else if(c.secondAgeDelay==='7-first'){minimum=pv.rules.ago.secondDays;start=pv.firstDate;origin='Première assemblée';}
-      else if(c.secondAgeDelay==='7-notice'){minimum=pv.rules.ago.secondDays;start=pv.secondNoticeDate;origin='Envoi de la seconde convocation';}
-      else {minimum=count(c.secondAgeDays);start=c.secondAgeOrigin==='first-assembly'?pv.firstDate:pv.secondNoticeDate;origin=c.secondAgeOrigin==='first-assembly'?'Première assemblée':'Envoi de la seconde convocation';if(minimum===null||!Number.isFinite(minimum)||!c.secondAgeOrigin)return result('pending','À vérifier : délai confirmé et point de départ à compléter.',issues);}
-    }
-    if(pv.secondNoticeDate&&pv.date&&civilDays(pv.secondNoticeDate,pv.date)<0)issues.push('La seconde convocation est postérieure à l’assemblée.');
-  }
-  const days=civilDays(start,pv.date);
-  if(days===null)return result('pending','À vérifier : dates nécessaires au calcul manquantes.',issues);
-  const details=[`${origin} : ${start} ; assemblée : ${pv.date}.`,`${days} jour(s) civil(s) ; minimum retenu : ${minimum}.`,pv.rules.convention,...issues];
-  if(days<minimum||days<0)return result('fail','Délai non respecté selon la règle retenue.',details);
-  if(issues.length)return result('pending','Délai calculé suffisant ; conditions de seconde convocation à vérifier.',details);
-  return result('pass','Délai respecté selon la règle retenue.',details);
+ const input=pvNoticeInput(pv);
+ if(pv.type==='MIXTE'){const summary=delaySummary(input);return {state:summary.state,text:summary.text,details:summary.parts.flatMap(c=>[c.part+' : '+c.text,c.alert,...c.issues]).filter(Boolean)};}
+ const c=delayCheck(input,pv.type);
+ return {...c,details:[c.reference,c.alert,`Délai requis : ${c.required??'à confirmer'} jours ; entre envoi et assemblée : ${c.calculated??'dates manquantes'} jours.`,`Première date possible de l’AG depuis l’envoi${c.uncertain?' (indicative)':''} : ${c.earliest?civilLabel(c.earliest):'à vérifier / date manquante'}.`,`Date limite d’envoi${c.uncertain?' (indicative)':''} : ${c.latest?civilLabel(c.latest):'à vérifier / date manquante'}.`,c.convention,...c.issues].filter(Boolean)};
 }
 export function quorumCheck(pv,powers=powerCheck(pv)){
   const total=count(pv.memberTotal),present=count(pv.presentCount),represented=powers.represented;
@@ -89,7 +71,9 @@ export function quorumCheck(pv,powers=powerCheck(pv)){
   return {...result(retained>=required?'pass':'fail',retained>=required?'Quorum atteint selon les confirmations enregistrées.':'Quorum non atteint selon les confirmations enregistrées.',details),...base,retained};
 }
 export function preparationChecks(pv){
-  const powers=powerCheck(pv),notice=noticeCheck(pv),quorum=quorumCheck(pv,powers),issues=[];
+  if(pv.type==='MIXTE'){const parts=['AGO','AGE'].map(type=>({type,...preparationChecks({...pv,type,...(pv.partData?.[type]||{}),agenda:pv.agenda.filter(p=>p.part===type),referenceAgenda:null})}));return {...parts[0],parts,notice:{...noticeCheck(pv),details:parts.flatMap(p=>[p.type+' : '+p.notice.text,...p.notice.details])},quorum:{state:parts.every(p=>['pass','not-required'].includes(p.quorum.state))?'pass':'pending',text:'Constats distincts pour chaque partie',details:parts.flatMap(p=>[p.type+' : '+p.quorum.text,...p.quorum.details])},issues:parts.flatMap(p=>p.issues.map(s=>p.type+' : '+s))};}
+
+  const powers=powerCheck(pv),notice=noticeCheck(pv),quorum=quorumCheck(pv,powers),issues=[];if(pv.rules.statutoryVerified===false){if(quorum.state==='pending')quorum.text='À vérifier : prise en compte des représentés ou données de présence, selon les confirmations renseignées.';}
   const total=count(pv.memberTotal),present=count(pv.presentCount),named=pv.present.filter(p=>norm(p.name)).length;
   if(total===null||total===0)issues.push('Effectif total des adhérents à jour à renseigner (positif).');
   if(present===null)issues.push('Nombre déclaré de membres présents votants à renseigner.');
@@ -100,7 +84,7 @@ export function preparationChecks(pv){
   if(total!==null&&present!==null&&present+powers.represented>total)issues.push('Présents et représentés dépassent l’effectif adhérent.');
   for(const [key,label] of [['date','date de l’assemblée'],['place','lieu'],['startTime','heure de début'],['chair','présidence de séance'],['secretary','secrétariat de séance'],['convener','personne ou instance ayant convoqué']])if(!pv[key].trim())issues.push(`${label} à compléter.`);
   if(!pv.agenda.length)issues.push('Ordre du jour à compléter.');
-  if(pv.referenceAgenda!==null&&JSON.stringify(pv.referenceAgenda)!==JSON.stringify(pv.agenda.filter(p=>p.origin==='announced').map(p=>({pointId:p.id,title:p.title}))))issues.push('L’ordre annoncé courant diffère de la copie de référence : vérifier ou corriger explicitement la copie.');
+  if(pv.referenceAgenda!==null&&JSON.stringify(pv.referenceAgenda.map(p=>({pointId:p.pointId,title:p.title})))!==JSON.stringify(pv.agenda.filter(p=>p.origin==='announced').map(p=>({pointId:p.id,title:p.title}))))issues.push('L’ordre annoncé courant diffère de la copie de référence : vérifier ou corriger explicitement la copie.');
   if(pv.convocation==='second'){
     if(!pv.firstDate)issues.push('Date de la première assemblée à compléter.');
     if(pv.firstQuorum!=='insufficient')issues.push('Quorum insuffisant de la première assemblée à confirmer.');
@@ -140,4 +124,4 @@ export function voteResult(r){
   const adopted=r.rule.majority==='two-thirds'?3*numbers[0]>=2*expressed:numbers[0]>numbers[1];
   return {state:'pass',outcome:adopted?'Adoptée selon le décompte saisi.':'Rejetée selon le décompte saisi.',expressed,threshold,sum,details,missing:[],nonParticipation:null};
 }
-export function pvVoteResult(pv,r){const result=voteResult(r);if(r.rule.assemblyType!==pv.type)return {...result,state:'pending',outcome:'À vérifier : le type de l’AG diffère de la règle copiée pour ce vote.',missing:[...(result.missing||[]),'La règle conservée du vote reste inchangée ; corrigez-la explicitement si nécessaire.']};return result;}
+export function pvVoteResult(pv,r){const result=voteResult(r);if(r.rule.assemblyType!==(pv.type==='MIXTE'?pv.agenda.find(p=>p.resolutions.some(q=>q.id===r.id))?.part:pv.type))return {...result,state:'pending',outcome:'À vérifier : le type de l’AG diffère de la règle copiée pour ce vote.',missing:[...(result.missing||[]),'La règle conservée du vote reste inchangée ; corrigez-la explicitement si nécessaire.']};return result;}

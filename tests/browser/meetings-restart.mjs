@@ -1,3 +1,4 @@
+import {navigate} from './navigation.mjs';
 import {mkdtemp} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -15,7 +16,7 @@ await page.evaluate(async () => {
   localStorage.setItem('vsv.projects.v1', encode([{...project(),name:'Projet avant fermeture'}]));
 });
 await page.reload();
-await page.locator('[data-nav=meetings]').click();
+await navigate(page,'meetings');
 await page.locator('#new-meeting').click();
 await page.locator('[data-meeting-field=title]').fill('Réunion conservée');
 await page.locator('#new-point-title').fill('Échanges');
@@ -27,10 +28,10 @@ await context.close();
 context = await chromium.launchPersistentContext(profile, options);
 page = await context.newPage();
 await page.goto(baseUrl);
-await page.locator('[data-nav=meetings]').click();
+await navigate(page,'meetings');
 await page.getByRole('button',{name:'Ouvrir',exact:true}).click();
 assert.equal(await page.locator('[data-point-field=discussion]').inputValue(), notes);
-await page.locator('[data-nav=projects]').click();
+await navigate(page,'projects');
 assert.match(await page.locator('.card').innerText(), /Projet avant fermeture/);
 await context.close();
 console.log('Fermeture réelle de Chromium et réouverture du même profil : dernières notes et projet V1 préservés.');
