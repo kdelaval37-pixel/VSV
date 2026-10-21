@@ -6,3 +6,27 @@ const changes=flatten(d).map(r=>({...r,expected:0,deleted:false}));await query(`
 const fixtureServer=memoryServer();fixtureServer.db.snapshot=async actor=>JSON.parse(await query(`select public.vsv_snapshot(${lit(actor)});`));fixtureServer.db.request=async id=>JSON.parse(await query(`select coalesce((select to_jsonb(r) from public.vsv_requests r where id=${lit(id)}),'null');`));fixtureServer.db.commit=async p=>JSON.parse(await query(`select public.vsv_commit(${lit(p.actor)},${lit(p.id)},${lit(p.fingerprint)},${p.revision},${json(p.changes)},${json(p.result)});`));
 const request=(name,p)=>({action:'mutate',id:crypto.randomUUID(),changes:[],commands:[{name,args:[p]}]});for(const actor of [A,B])assert.equal((await fixtureServer.call(actor,request('cartChange',{sessionId:session.id,articleId:a.id,delta:1}))).status,200);
 const snap=await fixtureServer.db.snapshot(A),data=materialize(snap.rows),checkout=actor=>request('checkout',{sessionId:session.id,token:data.operations.baskets.find(b=>b.actor===actor).cartToken,payment:'Carte bancaire'}),ra=checkout(A),rb=checkout(B),result=await Promise.all([fixtureServer.call(A,ra),fixtureServer.call(B,rb)]);assert.equal(result.filter(r=>r.status===200).length,1,JSON.stringify(result));const winner=result[0].status===200?A:B,retry=await fixtureServer.call(winner,winner===A?ra:rb);assert.equal(retry.status,200);const after=materialize((await fixtureServer.db.snapshot(A)).rows);assert.equal(after.operations.sales.length,1);assert.equal(after.operations.movements.length,2);assert.equal(after.operations.sales[0].total,700);console.log('PostgreSQL réel : vente concurrente du dernier article et réessai idempotent OK');
+// Deux imports CSV doivent être recalculés après le verrou global, sans seconde série.
+const csvArgs={rows:[['id','nom complet','courriel'],['0007','Adhérent CSV fictif','csv@example.invalid']],mapping:{externalId:0,fullName:1,email:2},decisions:{},file:'fictif.csv',observed:[]};
+const memberRequest=()=>request('importMembers',csvArgs);
+const [imA,imB]=await Promise.all([fixtureServer.call(A,memberRequest()),fixtureServer.call(B,memberRequest())]);
+assert.equal(imA.status,200,JSON.stringify(imA.body));assert.equal(imB.status,200,JSON.stringify(imB.body));
+assert.equal(imA.body.result.created+imB.body.result.created,1);assert.equal(imA.body.result.unchanged+imB.body.result.unchanged,1);
+const members=materialize((await fixtureServer.db.snapshot(A)).rows).repositories.members.filter(m=>m.externalId==='0007');assert.equal(members.length,1);
+// Filet de sécurité SQL : y compris archives et variantes d’espaces ; aucun nettoyage.
+const canonical=members[0];
+for(const externalId of ['0007',' 0007 ','\t0007\u00a0']){
+ const copy={...canonical,id:crypto.randomUUID(),externalId,archived:true};
+ await assert.rejects(()=>query(`insert into public.vsv_references(kind,id,payload)values('members',${lit(copy.id)},${json(copy)});`),/vsv_members_external_id_live_unique/);
+}
+// Simuler les copies déjà supprimées en production, uniquement avec une identité fictive.
+const removed={...canonical,id:crypto.randomUUID()};await query(`insert into public.vsv_references(kind,id,payload,deleted,version)values('members',${lit(removed.id)},${json(removed)},true,2);`);
+const snapAfterDelete=await fixtureServer.db.snapshot(A),beforeTomb=snapAfterDelete.rows.find(r=>r.kind==='members'&&r.id===removed.id);
+await assert.rejects(()=>query(`select public.vsv_commit(${lit(A)},${lit(crypto.randomUUID())},'no-revive',${snapAfterDelete.revision},${json([{table:'vsv_references',kind:'members',id:removed.id,payload:removed,expected:2,deleted:false}])},'null');`),/supprimée logiquement/);
+// Une sauvegarde canonique seule reste recevable malgré la copie tombstone de même numéro.
+const clean=materialize(snapAfterDelete.rows);const preview=await fixtureServer.call(ADMIN,{action:'migrate-preview',id:crypto.randomUUID(),data:clean});assert.equal(preview.status,200);assert.equal(preview.body.result.conflicts.length,0,JSON.stringify(preview.body));
+const old=structuredClone(clean);old.repositories.members.push(removed);const bad=await fixtureServer.call(ADMIN,{action:'migrate',id:crypto.randomUUID(),data:old});assert.equal(bad.status,400);
+const afterTomb=(await fixtureServer.db.snapshot(A)).rows.find(r=>r.id===removed.id&&r.kind==='members');assert.deepEqual(afterTomb,beforeTomb);
+console.log('PostgreSQL réel : imports membres concurrents, unicité Paheko (archives/espaces), anciennes sauvegardes et tombstones préservés OK');
+
+const changedArgs=structuredClone(csvArgs);changedArgs.rows[1][2]='actualise@example.invalid';changedArgs.observed=[canonical];const changed=await fixtureServer.call(A,request('importMembers',changedArgs));assert.equal(changed.status,200,JSON.stringify(changed.body));assert.equal(changed.body.result.updated,1);assert.deepEqual((await fixtureServer.db.snapshot(A)).rows.find(r=>r.id===removed.id&&r.kind==='members'),beforeTomb);assert.equal(await query("select public.vsv_paheko_id('v0007v');"),'v0007v');console.log('Mise à jour canonique malgré tombstones historiques et normalisation exacte du texte : OK');

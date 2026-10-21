@@ -21,6 +21,14 @@ for(const kind of ['convocations','invitations']){
  await c.reload();await c.locator('#shared-toolbar').waitFor();
 }
 console.log('Convocations et invitations : partage entre deux utilisateurs et conflits avec saisie conservée OK');
+// CSV via les vrais écrans et la commande serveur : deux aperçus concurrents.
+async function csvPreview(p){await navigate(p,'settings');await p.locator('#settings-csv').click();const d=p.locator('dialog').last();await d.locator('[data-csv-file]').setInputFiles({name:'membres-fictifs.csv',mimeType:'text/csv',buffer:Buffer.from('id;nom complet;courriel\n0007;Nouvel adhérent CSV partagé fictif;csv@example.invalid')});await d.locator('[data-map=email]').selectOption('2');await d.locator('[data-preview-import]').click();return d;}
+const csvA=await csvPreview(c),csvB=await csvPreview(cashB);
+await Promise.all([csvA.locator('[data-confirm-import]').click(),csvB.locator('[data-confirm-import]').click()]);
+for(const [p,d]of [[c,csvA],[cashB,csvB]]){await p.waitForFunction(()=>[...document.querySelectorAll('.reference-status')].some(e=>e.textContent.includes('créations,')||e.textContent.includes('L’annuaire a changé')));if((await d.locator('.reference-status').innerText()).includes('L’annuaire a changé'))await d.locator('[data-confirm-import]').click();await d.getByText('Import enregistré. Vous pouvez fermer cette fenêtre.').waitFor();await d.locator('[data-close]').click();}
+assert.equal(service.fixture.data.repositories.members.filter(m=>m.externalId==='0007').length,1);const stableMember=service.fixture.data.repositories.members.find(m=>m.externalId==='0007').id;
+const csvAgain=await csvPreview(c);assert.match(await csvAgain.innerText(),/1 fiches inchangées/);await csvAgain.locator('[data-confirm-import]').click();await csvAgain.getByText('Import enregistré. Vous pouvez fermer cette fenêtre.').waitFor();await csvAgain.locator('[data-close]').click();assert.equal(service.fixture.data.repositories.members.find(m=>m.externalId==='0007').id,stableMember);
+console.log('CSV partagé : deux imports concurrents, réimport inchangé et identifiant interne stable OK');
 // Suspension effective : même une session déjà connectée perd l’accès.
 service.fixture.users.get(B).active=false;await b.locator('#shared-refresh').click();await b.getByRole('heading',{name:'Accès interrompu'}).waitFor();
 for(const width of [1366,768,390]){await c.setViewportSize({width,height:850});assert.ok(await c.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));}await c.locator('#shared-logout').click();await c.getByRole('heading',{name:'Connexion à VSV'}).waitFor();await c.screenshot({path:'/tmp/vsv-partage-connexion-mobile.png',fullPage:true});assert.deepEqual(errors,[]);console.log('Suspension, déconnexion et largeurs bureau/tablette/mobile OK');}finally{await browser.close();await service.close();}
