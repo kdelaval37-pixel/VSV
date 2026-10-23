@@ -124,3 +124,23 @@ Retirer `VSV_PAHEKO_TEST_CATEGORY_IDS` et `VSV_PAHEKO_TEST_AUTHORIZATION` désac
 ce mode si aucun ancien CSV n'est configuré. L'import CSV manuel reste disponible.
 Pour révoquer complètement cet accès, supprimer l'identifiant API dédié dans Paheko.
 Cela ne supprime aucun membre déjà importé. Ne pas effacer la base pour revenir en arrière.
+
+## Correction du bouton des paramètres
+
+Le bouton des paramètres transmettait le fichier CSV comme callback à
+`csvImport`, au lieu de son deuxième argument `providedFile`. L'assistant
+s'ouvrait donc sans fichier. Le branchement transmet maintenant le fichier
+à la bonne position, comme le parcours Communication.
+
+Après installation de l'API multi-catégories, cette correction nécessite
+uniquement de récupérer la branche, reconstruire avec les quatre variables
+VSV-TEST habituelles et téléverser le dossier `dist` complet dans Cloudflare
+**vsv-test** (pas une archive ZIP). Aucune migration, modification de secret
+ni nouveau déploiement de vsv-api requis pour ce branchement.
+
+Validation locale : 195 tests Node réussis et compilation TEST réussie avec
+une clé publique fictive. Le parcours `tests/browser/paheko-settings.mjs`
+est fourni pour contrôler le fichier préchargé et l'aperçu sans écriture,
+avec un connecteur simulé. Il n'a pas pu être exécuté ici : Chromium absent
+et téléchargement du navigateur bloqué (HTTP 403). Aucun nouveau test
+Paheko hébergé n'est revendiqué.
