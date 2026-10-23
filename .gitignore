@@ -10,3 +10,5 @@ dist/
 .env.*
 !.env.example
 supabase/.temp/
+# Paquets de déploiement générés, sans données associatives
+release/

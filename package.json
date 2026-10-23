@@ -9,7 +9,9 @@
     "vendor": "node scripts/vendor.mjs",
     "build:pages": "node scripts/build-pages.mjs",
     "test:sql": "bash scripts/test-sql.sh",
-    "test:shared:browser": "node scripts/test-shared-browser.mjs"
+    "test:shared:browser": "node scripts/test-shared-browser.mjs",
+    "test:hub:browser": "node scripts/test-hub-browser.mjs",
+    "test:compiled:browser": "node scripts/test-compiled-browser.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.78.0"

@@ -1,4 +1,4 @@
 import {spawn} from 'node:child_process';import net from 'node:net';
 const port=await new Promise(resolve=>{const server=net.createServer();server.listen(0,'127.0.0.1',()=>{const {port}=server.address();server.close(()=>resolve(port));});});
 const child=spawn(process.execPath,['server.js'],{env:{...process.env,VSV_PORT:String(port)},stdio:['ignore','pipe','pipe']});process.env.VSV_TEST_URL=`http://127.0.0.1:${port}`;
-try{let ready=false;for(let n=0;n<100;n++){try{const r=await fetch(process.env.VSV_TEST_URL);if(r.ok){ready=true;break;}}catch{}await new Promise(resolve=>setTimeout(resolve,100));}if(!ready)throw Error('Serveur de test indisponible.');await import('../tests/browser/shared.mjs');}finally{child.kill();}
+try{let ready=false;for(let n=0;n<100;n++){try{const r=await fetch(process.env.VSV_TEST_URL);if(r.ok){ready=true;break;}}catch{}await new Promise(resolve=>setTimeout(resolve,100));}if(!ready)throw Error('Serveur de test indisponible.');await import(process.env.VSV_SHARED_BROWSER_TEST==='hub'?'../tests/browser/hub-shared.mjs':'../tests/browser/shared.mjs');}finally{child.kill();}

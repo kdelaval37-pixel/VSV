@@ -330,3 +330,20 @@ Vérifications de cette mise à jour : **108 tests de données réussis**, tests
 Le menu regroupe AG, Réunion, Projet et Gestion. Les convocations d’AG (dont AG mixtes) et invitations de réunion permettent de préparer un PV ou compte rendu avec une copie versionnée de l’ordre annoncé, sans envoi automatique. Les données utilisent les mêmes droits et conflits Supabase que les autres documents. Sauvegarde V11 compatible avec les imports antérieurs.
 
 **Installation de test, migration SQL, fonction et site : [guide VSV-TEST](docs/VSV-TEST-CONVOCATIONS.md).** Les délais des premières convocations sont vérifiés sur les articles 10 et 11 des statuts fournis ; les secondes convocations gardent des réserves ciblées. Voir le [correctif des délais pour VSV-TEST](docs/DELAIS-CONVOCATIONS.md). Aucune certification juridique globale n’est affichée.
+
+### Protection des identités Paheko
+
+Le correctif `fix/doublons-adherents` conserve les UUID lors des mises à jour CSV, distingue les fiches inchangées et revérifie l’import côté serveur. Une migration SQL ajoute l’unicité des numéros non vides et protège les suppressions logiques ; elle ne nettoie ni ne restaure de fiche. Les anciennes sauvegardes contenant des doublons sont refusées explicitement. [Diagnostic, vérifications et installation VSV-TEST](docs/DOUBLONS-ADHERENTS.md).
+
+## Évolution vers le hub associatif — VSV-TEST
+
+Suivi, dépendances et état des lots : [docs/hub/SUIVI.md](docs/hub/SUIVI.md).
+Premier lot : fiabilité des imports d’adhérents et commandes de test protégées.
+Installation Windows, migrations/API/site séparés et retour arrière : [docs/hub/VSV-TEST.md](docs/hub/VSV-TEST.md).
+La branche `feature/hub-associatif-test` n’est pas destinée à une fusion automatique dans main.
+
+### Livraison intégrée VSV-TEST
+
+La méthode par petites installations est remplacée par une mise à jour globale : [guide unique](docs/hub/LIVRAISON-GLOBALE.md), [état des fonctions et limites](docs/hub/ETAT-INTEGRE.md).
+
+Validation autonome : `npm test`, `npm run test:sql` (PostgreSQL jetable/Docker), `npm run test:hub:browser` (Chromium installé, Auth/API simulés). Aucun de ces tests ne déploie en production.

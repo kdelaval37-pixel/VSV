@@ -16,3 +16,10 @@ create publication supabase_realtime;
 
 create policy old_overly_broad_storage on storage.objects for all to authenticated using(true) with check(true);
 grant insert,update,delete on storage.objects to authenticated;
+create schema realtime;
+create table realtime.messages(topic text,message text);
+alter table realtime.messages enable row level security;
+create function realtime.topic() returns text language sql stable as $$select current_setting('realtime.topic',true)$$;
+grant usage on schema realtime to authenticated,service_role;
+grant execute on function realtime.topic() to authenticated,service_role;
+create policy old_overly_broad_realtime on realtime.messages for all to authenticated using(true) with check(true);
