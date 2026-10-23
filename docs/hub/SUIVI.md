@@ -162,3 +162,18 @@ Ces essais utilisent des données fictives. API/Auth/Realtime/Storage/Google/Pah
 La version hébergée n’est pas mise à jour ici, faute d’accès et du fait du refus HTTP vers VSV-TEST. Les réglages Google/Paheko et accès de déploiement sont regroupés dans le guide global, à saisir exclusivement dans leurs interfaces sécurisées. API Paheko native/pagination, automatisation planifiée et notifications externes restent non activées avant documentation/accès et essais réels. Les réservations datées restent conservatrices ; pas de caisse hors ligne ni de partage de documents par sous-groupe arbitraire. Voir ETAT-INTEGRE.md pour ne pas confondre ces limites avec des fonctions livrées.
 
 Dernier contrôle du dossier projet : les réceptions réparties entre plusieurs projets sont comptées par leurs affectations, une seule fois par réception. Test fictif dédié, historique inchangé.
+
+
+## Correction de la livraison compilée — 23 octobre 2026
+
+Demande : menus du hub ouvrant les projets, style invisible, Google introuvable. Travail réservé à `feature/hub-associatif-test` / VSV-TEST.
+
+Défauts démontrés : titres d’onglets des nouvelles pages retombant sur Fiches projet ; suppression générale du hash lors de la restauration de session Supabase ; accès Google absent des paramètres. Les tests précédents servaient les sources et ne validaient pas le paquet réellement livré. Le renvoi **au clic** du site hébergé n’est pas reproduit localement avec l’ancien paquet : ne pas prétendre sa cause distante établie. L’accès hébergé est refusé par le proxy HTTP (403).
+
+Corrections : table de titres complète, routes conservées à la restauration de session, erreur visible pour un module inconnu, lien du logo #home, point d’entrée et dépendances compilés avec empreintes, styles avec empreintes, identifiant de version visible et manifest. Accès Google administrateur dans Paramètres et Communication, états configuration manquante/serveur indisponible/prêt à connecter. Interface écran réellement remaniée sur les modules, avec icônes, cartes, tableaux, contrôles, hiérarchie et animations réduites à la demande. Modèles et styles PDF inchangés.
+
+Vérifications : 188 tests Node réussis et suite navigateur historique intégrée réussie. Nouveau parcours autonome du **paquet compilé** : 16 menus × administrateur/adhérent, clics et rechargements ; mise à jour depuis `4ef6951` compilée sur même origine/profil avec session et document conservés ; paramètres/version ; Google manquant, indisponible et prêt (simulations) ; captures 1440/390 px clair/sombre ; focus clavier, réduction des animations, absence de débordement global, contraste du bouton secondaire contrôlé. Document projet A4 : rendu raster identique avant/après (1 page). Ancien et nouveau profils : aucun service worker enregistré. Aucune donnée effacée pour réussir le test.
+
+Les captures et résultats exacts sont dans correction-captures/parcours.json. Chromium et PDF réellement exécutés localement ; Auth/API/Realtime/Storage et statuts Google simulés. Aucun nouveau test hébergé annoncé. Les quatre essais hébergés du premier lot restent les seuls confirmés par l’utilisateur. Aucun service worker réel installé/PWA physique, Safari ou Google réel testé.
+
+Mise à jour unique : CORRECTION-VERSION-COMPILEE.md. Aucune migration SQL nouvelle ni code serveur modifié dans cette correction ; reconstruire/téléverser l’intégralité du site TEST puis comparer l’identifiant de version. Si l’API intégrée précédente manque, suivre l’étape API du guide global. Aucun merge main/déploiement de production. Le paquet de test à clé fictive est retiré automatiquement ; reconstruire avec la clé publique TEST via le script de livraison avant téléversement.

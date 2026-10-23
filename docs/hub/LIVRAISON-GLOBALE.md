@@ -1,5 +1,7 @@
 # VSV-TEST — mise à jour intégrée
 
+**Correction des menus, du style et de Google après première installation :** suivre [CORRECTION-VERSION-COMPILEE.md](CORRECTION-VERSION-COMPILEE.md). Elle ne nécessite aucune nouvelle migration et évite de refaire l’installation du socle.
+
 Branche unique : `feature/hub-associatif-test`. Production exclue : ne pas fusionner main, ne pas toucher vsv-byl ni le projet `zbbxhhtqcyryabfftbvq`.
 
 ## Accès externes regroupés, à régler une seule fois

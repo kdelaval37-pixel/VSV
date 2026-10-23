@@ -1,3 +1,5 @@
+import {enhanceNavigation} from './screen-ui.js';
+import {pageTitles} from './routes.js';
 import {createHubModule} from './hub-ui.js';
 import {parseRoute,routeHash,documentRoutes} from './routes.js';
 import {createNoticesModule} from './notices.js';
@@ -85,7 +87,9 @@ function navigation(page){
   const selected=page==='projects'?current:page==='meetings'?meetingModule.getCurrent():page==='pvs'?pvModule.getCurrent():page==='reviews'?reviewModule.getCurrent():['convocations','invitations'].includes(page)?noticesModule.getCurrent():page==='hub'?hubModule.getCurrent():null;
   if(!booting){const hash=routeHash(page,selected?.id);if(location.hash!==hash)history.pushState(null,'',hash);if(selected?.id&&documentRoutes.includes(page)&&page!=='hub')hubModule.recent(page,selected.id).catch(()=>{});}
   if(selected?.id&&documentRoutes.includes(page)&&page!=='hub')queueMicrotask(()=>{if(activePage!==page||app.querySelector('.hub-context'))return;const bar=document.createElement('div');bar.className='hub-context actions';bar.innerHTML='<button type="button" class="secondary" data-copy-link>Copier le lien</button><button type="button" class="secondary" data-prepare-mail>Préparer un message</button><button type="button" class="secondary" data-comments>Commentaires</button>';app.querySelector('.heading')?.after(bar);if(page==='meetings'){const carry=document.createElement('button');carry.className='secondary';carry.textContent='Reprendre les actions à suivre';bar.append(carry);carry.onclick=async()=>{await flushWrites();if(!leave())return;hubModule.carryMeeting(meetingModule.getCurrent(),async copy=>{copy.updatedAt=new Date().toISOString();await writeAll({meetings:meetings.map(m=>m.id===copy.id?copy:m)});syncData(readAll());meetingModule.openDocument(copy);});};}bar.querySelector('[data-copy-link]').onclick=async()=>{try{await navigator.clipboard.writeText(location.origin+location.pathname+routeHash(page,selected.id));message('Lien copié. Accès réservé aux comptes VSV autorisés.');}catch{message('Copiez l’adresse affichée dans le navigateur.');}};bar.querySelector('[data-prepare-mail]').onclick=async()=>{await flushWrites();if(leave())hubModule.prepareFromDocument(page,selected.id).catch(e=>message(e.message,true));};bar.querySelector('[data-comments]').onclick=()=>hubModule.commentOn(page,selected.id);});
-  document.title='VSV — '+(page==='convocations'?'Convocations':page==='invitations'?'Invitations':page==='home'?'Accueil':page==='meetings'?'Comptes rendus':page==='pvs'?'Procès-verbal':page==='settings'?'Paramètres':page==='reviews'?'Bilan d’action':page==='shopping'?'Liste de courses':page==='stocks'?'Stocks':page==='cash'?'Caisse':'Fiches projet');
+  document.title='VSV — '+(pageTitles[page]||'Page indisponible');
+  app.dataset.page=page;
+  app.classList.remove('page-enter');requestAnimationFrame(()=>app.classList.add('page-enter'));
 }
 function home(){
   current=null;meetingModule.clear();pvModule.clear();navigation('home');app.innerHTML=homeView(projects,blocked,meetings.length,pvs.length)+notice;hubModule.mountHome();
@@ -100,12 +104,13 @@ function home(){
 async function goToPage(page){if(shared()?.locked)return;
   await flushWrites();await reviewModule.flush();if(!leave())return;
   dirty=false;markDraft('projects',false);
-  if(['tasks','agenda','association','teams','communication'].includes(page))hubModule.list(page);else if(['convocations','invitations'].includes(page))noticesModule.list(page);else if(page==='shopping')shoppingModule.list();else if(page==='stocks')stocksModule.list();else if(page==='cash')cashModule.list();else if(page==='home')home();else if(page==='meetings')meetingModule.list();else if(page==='pvs')pvModule.list();else if(page==='reviews')reviewModule.list();else if(page==='settings'){navigation('settings');referenceUI.settings(app);}else dashboard();
+  if(['tasks','agenda','association','teams','communication'].includes(page))hubModule.list(page);else if(['convocations','invitations'].includes(page))noticesModule.list(page);else if(page==='shopping')shoppingModule.list();else if(page==='stocks')stocksModule.list();else if(page==='cash')cashModule.list();else if(page==='home')home();else if(page==='meetings')meetingModule.list();else if(page==='pvs')pvModule.list();else if(page==='reviews')reviewModule.list();else if(page==='settings'){navigation('settings');referenceUI.settings(app);}else if(page==='projects')dashboard();else{navigation(page);app.innerHTML='<section class=\"panel error\"><h1>Page indisponible</h1><p>Ce module n’est pas reconnu par cette version. Consultez la version dans les paramètres et rechargez après avoir conservé votre travail.</p></section>';}
   app.focus();window.scrollTo({top:0,behavior:'instant'});
 }
 
 document.querySelectorAll("[data-nav]").forEach(button=>button.onclick=()=>goToPage(button.dataset.nav));
 document.querySelector("#home-logo").onclick=e=>{if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;e.preventDefault();goToPage("home");};
+enhanceNavigation();
 navigationUI=setupNavigation({collapsed:!!preferences.sidebarCollapsed,persist:async collapsed=>{if(blocked)throw Error("Données illisibles : écriture bloquée pour les préserver.");const r=await transact(d=>{d.repositories??=repositories;d.preferences??=preferences;d.preferences.sidebarCollapsed=collapsed;});syncData(r.data);}});
 
 window.addEventListener('vsv-shared-updated',()=>{if(shared()){syncData(readAll());applyAppearance(preferences);if(activePage==='projects'&&!current&&app.querySelector('#list'))list();if(activePage==='meetings')meetingModule.refreshList();if(activePage==='pvs')pvModule.refreshList();if(activePage==='reviews')reviewModule.refreshList();if(['convocations','invitations'].includes(activePage))noticesModule.refreshList();const hint=document.querySelector('#shared-refresh');if(hint)hint.title='Les nouvelles données sont disponibles. Actualiser la liste sans remplacer un formulaire en cours.';}});

@@ -1,0 +1,310 @@
+{
+  "services": "Auth/API/Realtime/Storage simulés ; Chromium et paquet compilé réels",
+  "routes": [
+    {
+      "role": "administrateur",
+      "route": "home",
+      "heading": "Ensemble, préparons les actions de VSV",
+      "title": "VSV — Accueil",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "convocations",
+      "heading": "Convocations",
+      "title": "VSV — Convocations",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "pvs",
+      "heading": "Procès-verbal",
+      "title": "VSV — Procès-verbaux",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "invitations",
+      "heading": "Invitations",
+      "title": "VSV — Invitations",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "meetings",
+      "heading": "Comptes rendus",
+      "title": "VSV — Comptes rendus",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "projects",
+      "heading": "Mes projets",
+      "title": "VSV — Fiches projets",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "reviews",
+      "heading": "Bilans d’action",
+      "title": "VSV — Bilans d’action",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "stocks",
+      "heading": "Stocks",
+      "title": "VSV — Stocks",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "cash",
+      "heading": "Caisse — ouvrir une session",
+      "title": "VSV — Caisse",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "shopping",
+      "heading": "Liste de courses",
+      "title": "VSV — Liste de courses",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "agenda",
+      "heading": "Agenda partagé",
+      "title": "VSV — Agenda",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "tasks",
+      "heading": "Tâches et décisions",
+      "title": "VSV — Tâches et décisions",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "association",
+      "heading": "Documents et partenaires",
+      "title": "VSV — Documents et partenaires",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "teams",
+      "heading": "Bénévolat et équipes",
+      "title": "VSV — Bénévolat et équipes",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "communication",
+      "heading": "Communication",
+      "title": "VSV — Communication",
+      "reload": true
+    },
+    {
+      "role": "administrateur",
+      "route": "settings",
+      "heading": "Paramètres",
+      "title": "VSV — Paramètres",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "home",
+      "heading": "Ensemble, préparons les actions de VSV",
+      "title": "VSV — Accueil",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "convocations",
+      "heading": "Convocations",
+      "title": "VSV — Convocations",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "pvs",
+      "heading": "Procès-verbal",
+      "title": "VSV — Procès-verbaux",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "invitations",
+      "heading": "Invitations",
+      "title": "VSV — Invitations",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "meetings",
+      "heading": "Comptes rendus",
+      "title": "VSV — Comptes rendus",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "projects",
+      "heading": "Mes projets",
+      "title": "VSV — Fiches projets",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "reviews",
+      "heading": "Bilans d’action",
+      "title": "VSV — Bilans d’action",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "stocks",
+      "heading": "Stocks",
+      "title": "VSV — Stocks",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "cash",
+      "heading": "Caisse — ouvrir une session",
+      "title": "VSV — Caisse",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "shopping",
+      "heading": "Liste de courses",
+      "title": "VSV — Liste de courses",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "agenda",
+      "heading": "Agenda partagé",
+      "title": "VSV — Agenda",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "tasks",
+      "heading": "Tâches et décisions",
+      "title": "VSV — Tâches et décisions",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "association",
+      "heading": "Documents et partenaires",
+      "title": "VSV — Documents et partenaires",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "teams",
+      "heading": "Bénévolat et équipes",
+      "title": "VSV — Bénévolat et équipes",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "communication",
+      "heading": "Communication",
+      "title": "VSV — Communication",
+      "reload": true
+    },
+    {
+      "role": "adhérent",
+      "route": "settings",
+      "heading": "Paramètres",
+      "title": "VSV — Paramètres",
+      "reload": true
+    }
+  ],
+  "update": {
+    "from": "4ef6951 compilée",
+    "sameOrigin": true,
+    "sameSession": true,
+    "documentRetained": true,
+    "localDataRetained": true
+  },
+  "screenshots": [
+    "home-1440-clair.png",
+    "tasks-1440-clair.png",
+    "agenda-1440-clair.png",
+    "association-1440-clair.png",
+    "teams-1440-clair.png",
+    "communication-1440-clair.png",
+    "stocks-1440-clair.png",
+    "cash-1440-clair.png",
+    "settings-1440-clair.png",
+    "formulaire-1440-clair.png",
+    "home-1440-sombre.png",
+    "tasks-1440-sombre.png",
+    "agenda-1440-sombre.png",
+    "association-1440-sombre.png",
+    "teams-1440-sombre.png",
+    "communication-1440-sombre.png",
+    "stocks-1440-sombre.png",
+    "cash-1440-sombre.png",
+    "settings-1440-sombre.png",
+    "formulaire-1440-sombre.png",
+    "home-390-clair.png",
+    "tasks-390-clair.png",
+    "agenda-390-clair.png",
+    "association-390-clair.png",
+    "teams-390-clair.png",
+    "communication-390-clair.png",
+    "stocks-390-clair.png",
+    "cash-390-clair.png",
+    "settings-390-clair.png",
+    "formulaire-390-clair.png",
+    "home-390-sombre.png",
+    "tasks-390-sombre.png",
+    "agenda-390-sombre.png",
+    "association-390-sombre.png",
+    "teams-390-sombre.png",
+    "communication-390-sombre.png",
+    "stocks-390-sombre.png",
+    "cash-390-sombre.png",
+    "settings-390-sombre.png",
+    "formulaire-390-sombre.png"
+  ],
+  "legacyTitle": "VSV — Fiches projet",
+  "serviceWorkersBefore": 0,
+  "print": {
+    "pages": 1,
+    "pixelIdentical": true
+  },
+  "google": {
+    "missingConfigurationVisible": true,
+    "serverUnavailableExplicit": true,
+    "oauthReadyButtonVisible": true,
+    "realConnection": false
+  },
+  "serviceWorkersAfter": 0,
+  "version": {
+    "id": "4ef6951c7a-cbbe645473",
+    "commit": "4ef6951c7a",
+    "target": "VSV-TEST",
+    "builtAt": "2026-10-23T19:31:19.606Z",
+    "entry": "assets/app-EZW3YWS7.js",
+    "files": [
+      "assets/app-EZW3YWS7.js",
+      "assets/module-TK62TTDB.js",
+      "assets/module-EHZZ6TPO.js",
+      "assets/module-D5NKJJOH.js",
+      "assets/module-F5E4C2DB.js",
+      "assets/module-IESP4ORG.js",
+      "assets/module-PFPKNKZ7.js",
+      "assets/module-FUQACIAQ.js"
+    ]
+  },
+  "errors": [],
+  "failedRequests": []
+}
