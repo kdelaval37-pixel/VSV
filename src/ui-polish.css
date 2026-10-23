@@ -1,0 +1,38 @@
+/* Interface de travail uniquement. Les modèles imprimés restent dans style.css. */
+@media screen {
+ body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-rendering:optimizeLegibility}
+ header{padding-block:20px;border-bottom:1px solid color-mix(in srgb,var(--header-text) 15%,transparent)}
+ .menu-bar{border-bottom:1px solid var(--primary-border);padding:10px 20px}
+ .app-layout main{padding:clamp(18px,2.8vw,42px);min-width:0}
+ .app-layout main>h1,.app-layout main .heading h1{font-size:clamp(27px,2.5vw,39px);letter-spacing:-.035em;line-height:1.18;font-weight:730;margin-block:6px 14px}
+ .app-layout h2{letter-spacing:-.02em;line-height:1.3}.app-layout h3{line-height:1.4}
+ .app-layout p{line-height:1.65}.eyebrow,.nav-label{text-transform:uppercase;letter-spacing:.11em;font-size:11px;font-weight:750}
+ .sidebar{padding:20px 14px;border-right:1px solid var(--primary-border)}
+ .sidebar button,.sidebar summary{border-radius:9px;font-size:14px;min-height:44px;font-weight:600;margin:3px 0;padding:11px 14px}
+ .sidebar [aria-current=page]{background:var(--primary-pale);color:var(--primary);box-shadow:inset 3px 0 var(--primary);font-weight:750}
+ .sidebar summary{color:var(--muted)}.sidebar button:hover,.sidebar summary:hover{background:var(--primary-pale)}
+ button,.app-layout .file{font-family:inherit;font-weight:650;border-radius:9px;min-height:42px;line-height:1.3;transition:background-color 120ms ease-out,box-shadow 120ms ease-out}
+ button:active:not(:disabled){filter:brightness(.95)}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--primary);outline-offset:3px}
+ input,textarea,select{font-family:inherit;font-size:16px;border-radius:8px;min-height:44px;line-height:1.5;border:1px solid var(--primary-border);padding:10px 12px}
+ input:focus,textarea:focus,select:focus{outline:2px solid var(--primary);outline-offset:1px}
+ input[type=checkbox]{min-height:20px;width:20px;height:20px;padding:0;accent-color:var(--primary)}
+ label{font-size:14px;font-weight:620;line-height:1.5}label>textarea{margin-top:7px;font-weight:400}fieldset{border:0;padding:0;margin:0;min-width:0}fieldset:disabled{opacity:.85}
+ .panel,.card,.home-project-panel{border-radius:14px;border:1px solid var(--primary-border);box-shadow:0 2px 7px #00000005;padding:clamp(18px,2vw,28px);background:var(--surface)}
+ .panel+.panel{margin-top:20px}.heading{gap:18px;align-items:center}.heading .actions{justify-content:flex-end}
+ .welcome{padding:clamp(24px,3vw,42px);border:1px solid var(--primary-border);border-radius:18px;background:var(--primary-pale)}
+ .welcome h1{font-size:clamp(28px,3vw,44px);letter-spacing:-.04em;max-width:25ch;line-height:1.14}.welcome>p{max-width:70ch}
+ .home-stats>div{border-radius:12px;border:1px solid var(--primary-border);box-shadow:none}.home-stats strong{font-variant-numeric:tabular-nums}
+ .hub-home{margin-block:24px}.hub-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:22px}.hub-overview>section{min-width:0}.hub-overview a{overflow-wrap:anywhere}
+ .hub-home [data-global-results]{margin-top:12px}.hub-home .reference-item>a{min-width:0;flex:1;overflow-wrap:anywhere}
+ .agenda-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}.agenda-calendar .agenda-day{padding:12px;margin:0;min-height:120px}.agenda-day h2{font-size:17px}.agenda-entry{padding:10px 0;overflow-wrap:anywhere}.agenda-entry p{font-size:12px;color:var(--muted);margin:0 0 5px}.agenda-entry a{font-weight:650}
+ .agenda-list .agenda-entry{border-bottom:1px solid var(--primary-border);padding:15px 0}
+ .reference-dialog{box-shadow:0 24px 80px #0005;border-radius:16px}.reference-dialog .heading{padding-bottom:14px;border-bottom:1px solid var(--primary-border);margin-bottom:20px}.reference-dialog label{min-width:0}
+ #shared-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:10px 20px;border-bottom:1px solid var(--primary-border)}#shared-status{font-size:12px;font-weight:650;margin-right:auto;max-width:42ch;overflow-wrap:anywhere}#shared-toolbar button{font-size:12px;padding:7px 10px;min-height:34px}
+ .app-layout table{border-spacing:0;font-variant-numeric:tabular-nums}.app-layout th{font-size:12px;text-align:left;letter-spacing:.02em}.app-layout td,.app-layout th{padding:12px 14px;vertical-align:top}.app-layout tbody tr:hover{background:var(--primary-pale)}
+ .savebar{border-radius:10px;gap:10px;padding:10px 16px;border:1px solid var(--primary-border)}.savebar p{font-size:13px;margin:0;flex:1}
+ .badge{font-size:12px;font-weight:650;border-radius:7px;padding:5px 9px}.empty{border:1px dashed var(--primary-border);border-radius:14px;padding:36px;text-align:center}
+ @media(max-width:1100px){.hub-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.agenda-calendar{grid-template-columns:repeat(4,minmax(0,1fr))}}
+ @media(max-width:700px){header{padding:16px}.app-layout main{padding:16px}.hub-overview{grid-template-columns:1fr}.heading{align-items:flex-start;flex-wrap:wrap}.heading .actions{justify-content:flex-start}.agenda-calendar{grid-template-columns:repeat(2,minmax(0,1fr))}.welcome{padding:22px}.reference-dialog{padding:16px;max-height:calc(100dvh - 24px)}button{min-height:44px}.menu-bar{padding:8px 16px}#shared-toolbar{padding:8px 12px}#shared-status{flex-basis:100%;max-width:none}.hub-home .reference-item button{flex-basis:100%}.actions{gap:8px}.savebar{flex-wrap:wrap;padding:10px}.savebar p{flex-basis:100%}}
+ @supports(padding:env(safe-area-inset-bottom)){body{padding-bottom:env(safe-area-inset-bottom)}.sidebar{padding-bottom:max(20px,env(safe-area-inset-bottom))}}
+ @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+}

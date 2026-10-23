@@ -5,6 +5,11 @@ async function api(path:string,method='GET',body?:unknown,token=secret){const r=
 const rpc=(name:string,p:unknown)=>api('/rest/v1/rpc/'+name,'POST',p);
 const first=async(path:string)=>(await api('/rest/v1/'+path))[0];
 const db={
+ rsvpGet:(h:string)=>first('vsv_rsvp?token_hash=eq.'+encodeURIComponent(h)),rsvpById:(id:string)=>first('vsv_rsvp?id=eq.'+encodeURIComponent(id)),
+ rsvpCreate:async(r:any)=>(await api('/rest/v1/vsv_rsvp?on_conflict=id','POST',r))[0],
+ rsvpReply:(h:string,id:string,response:string)=>rpc('vsv_rsvp_reply',{p_hash:h,p_request:id,p_response:response}),
+ rsvpList:async(id:string)=>(await api('/rest/v1/vsv_rsvp?source_id=eq.'+encodeURIComponent(id))).map((r:any)=>({id:r.id,name:r.person_name,response:r.response,revoked:r.revoked,expires:r.expires_at})),
+ rsvpRevoke:(id:string)=>api('/rest/v1/vsv_rsvp?id=eq.'+encodeURIComponent(id),'PATCH',{revoked:true}),
  access:(id:string)=>first('vsv_access?user_id=eq.'+encodeURIComponent(id)),
  snapshot:(id:string)=>rpc('vsv_snapshot',{p_actor:id}),
  migration:(id:string)=>first('vsv_migrations?id=eq.'+encodeURIComponent(id)),
