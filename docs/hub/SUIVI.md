@@ -27,8 +27,8 @@ Chaque lot doit livrer un parcours utilisable, tests, captures fictives, documen
 
 | Lot | Contenu / dépendances | Critère de réussite | État |
 | --- | --- | --- | --- |
-| 1 | Fiabilité membres/imports ; sécuriser VSV-TEST | Réimports et concurrence sans doublons, tombstones protégés, bilan complet, cible de production refusée | Code terminé ; installation VSV-TEST à effectuer |
-| 2 | Collaboration et composants communs, après 1 | Conflits lisibles par champs avec comparaison et copie conservée ; états serveur/local/échec cohérents ; même sélecteur et pièce jointe partout | À faire |
+| 1 | Fiabilité membres/imports ; sécuriser VSV-TEST | Réimports et concurrence sans doublons, tombstones protégés, bilan complet, cible de production refusée | Installé sur VSV-TEST ; essais hébergés partiels confirmés par l’utilisateur |
+| 2 | Collaboration et composants communs, après 1 | Conflits lisibles par champs avec comparaison et copie conservée ; états serveur/local/échec cohérents ; même sélecteur et pièce jointe partout | Code livré ; validation hébergée du lot 2 à effectuer |
 | 3 | Liens directs, recherche globale, récents/favoris/raccourcis personnels, après 2 | Recherche limitée aux droits, ouverture stable sans perte de saisie, préférences par utilisateur | À faire |
 | 4 | Dossier projet/événement, après 3 | Accès aux documents, achats, réservations, caisse, bilan sans copies divergentes ; duplication prochaine édition sans données réelles passées | À faire |
 | 5 | Agenda partagé, tâches et décisions, après 4 | Calendrier/liste, jours entiers et heures corrects, décision transformée une seule fois en tâche, source conservée, export calendrier | À faire |
@@ -63,8 +63,8 @@ Captures reproductibles : `tests/browser/hub-lot1.mjs` ; données fictives ident
 ## Reprise au prochain lot
 
 1. Lire ce suivi, vérifier git/main et l’état réel VSV-TEST, sans fusion automatique.
-2. Appliquer la procédure du lot 1 sur VSV-TEST et consigner les résultats réels avant de déclarer l’installation faite.
-3. Commencer le lot 2 : composants/conflicts lisibles. D’abord captures fictives des conflits actuels ; garder les versions et la copie locale, ne pas implémenter une fusion générale naïve.
+2. Lot 1 installé : voir les quatre essais hébergés rapportés ci-dessous. Ne pas les refaire inutilement ni considérer les autres scénarios comme validés.
+3. Lot 2 développé : voir `LOT-2.md`. Mettre à jour le site VSV-TEST et vérifier les nouveaux scénarios hébergés. Après validation, prochain lot : liens directs, recherche, récents/favoris personnels (lot 3).
 4. Demander uniquement les informations externes indispensables au moment du lot concerné. Ne jamais demander de secret dans la conversation.
 
 ## Vérifications réellement effectuées pour ce lot
@@ -79,3 +79,30 @@ Captures reproductibles : `tests/browser/hub-lot1.mjs` ; données fictives ident
 - Aucun déploiement, migration distante, mail, invitation réelle ni import du CSV joint effectué. Supabase/Cloudflare CLI non installés et aucune configuration d’accès de test présente dans cet environnement. Git push seul ne prouve pas un déploiement.
 
 Limites : PowerShell non exécuté sur Windows ici ; scripts préparés et relus. Safari/iPhone, Android et autres appareils physiques non testés. La configuration effective Cloudflare et l’état des migrations de Supabase TEST restent à vérifier dans leurs tableaux de bord. Pas de garantie de synchronisation externe Gmail/Paheko avant les futurs lots et accès de test. Les offres gratuites ont des limites de stockage, connexions et envoi ; aucun service payant activé.
+
+## Vérifications hébergées rapportées par l’utilisateur — 23 octobre 2026
+
+Le lot 1 a été installé sur VSV-TEST. Résultats communiqués par l’utilisateur, distincts des simulations locales :
+
+- Création de deux adhérents fictifs.
+- Réimport du même CSV : **0 création, 2 fiches inchangées**.
+- Modification du nom en conservant le numéro Paheko : **0 création, 1 mise à jour, 1 fiche inchangée**.
+- Vérification sur téléphone : modification visible et une seule fiche.
+
+Ces résultats confirment ces quatre scénarios uniquement. Les autres essais hébergés (imports simultanés, suppressions logiques, ancienne sauvegarde, conflits de documents, caisse/stock, restauration, etc.) ne sont pas considérés réalisés. Aucune nouvelle intervention de production autorisée.
+
+## Lot 2 — collaboration et composants communs
+
+Livraison : [LOT-2.md](LOT-2.md). Comparaison de conflits par champ et trois versions quand la base est connue ; saisie/copie protégées ; JSON technique replié ; actions explicites sans fusion. État serveur fiable et suivi commun des formulaires manuels (articles, membres, lieux, fournisseurs, catégories). Fenêtres partagées accessibles et sélecteur de fichiers privés réutilisé dans la barre d’outils et les champs existants des convocations/invitations. Présentation générale et modèles PDF conservés. Aucun nouveau champ de pièce jointe imposé aux documents qui n’en possédaient pas.
+
+### Résultats locaux, distincts des essais hébergés
+
+- **166 tests Node réussis**, dont 9 nouveaux tests de collaboration/fichiers/états. Comparaison, données manquantes, suppressions, stabilité de la version de départ, confirmation serveur, échec de copie locale et limites de fichiers couverts.
+- `npm run test:shared:browser` : réussi avec deux comptes **simulés** et Chromium réel ; conflits/copie/téléchargement, état du formulaire article, sélection et sauvegarde des fichiers depuis convocation/invitation, non-régressions caisse/stock/imports et suspension.
+- `tests/browser/collaboration-ui.mjs` : réussi ; Échap/retour de focus, annulation du rechargement, HTML échappé, recherche de fichiers sans accents, refus d’un faux PDF, ajout/sélection simulés, nettoyage de l’état d’un formulaire annulé.
+- `tests/browser/references-smoke.mjs` : réussi (CSV, référentiels, multi-sélection, packs, instantanés, couleur, sauvegarde et mobile). Premier lancement sans chemin du navigateur échoué ; relancé avec le Chromium installé et réussi.
+- `tests/browser/notices.mjs` : réussi ; liens convocation/PV, invitation/compte rendu, aperçu et export long. PDF fictif toujours A4 sur 14 pages, modèles inchangés.
+- Construction test à clé publique fictive et contrôle Deno de l’API : réussis. Le paquet fictif n’a pas été déployé. Aucun test PostgreSQL supplémentaire nécessaire pour ce lot sans changement serveur/SQL ; les résultats PostgreSQL du lot 1 restent ceux de ce lot.
+- Captures avant/après bureau et mobile sombre : [lot2-captures](lot2-captures/README.md). Source de référence : module Auth/UI `ecdc566` intercepté localement, pas production.
+
+**Installation : site VSV-TEST uniquement**, sans nouvelle migration SQL et sans redéploiement API. Checklist et retour arrière dans LOT-2.md. Aucun essai hébergé du lot 2 effectué ici ; tests physiques Safari/iPhone/Android et test du Storage Supabase hébergé à réaliser. Aucun accès/secret/compte de production modifié. Les seules vérifications hébergées acquises restent celles rapportées par l’utilisateur pour le lot 1.

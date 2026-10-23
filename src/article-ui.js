@@ -1,3 +1,4 @@
+import {observeEditor} from './shared/editor-state.js';
 import {shared} from './shared/runtime.js';
 import {createArticle,saveArticle} from './article-model.js';
 export {createArticle,saveArticle} from './article-model.js';
@@ -40,5 +41,6 @@ export function openArticleEditor({getRepositories,onUpdate,defaults={},value=nu
  if(value)shared()?.pinRecord('vsv_references','articles',value.id);const a=value?structuredClone(value):{...article(),...defaults},isNew=!value;
  const d=document.createElement('dialog');d.className='reference-dialog';d.setAttribute('aria-label',isNew?'Ajouter un article':'Modifier un article');d.innerHTML=`<div class="heading"><h2>${isNew?'Ajouter':'Modifier'} un article</h2><button type="button" class="secondary" data-close>Annuler</button></div><form class="common-article-form"><div class="grid">${articleForm(a,getRepositories(),isNew)}</div><p data-status role="status"></p><button data-submit>Enregistrer${isNew?' l’article':' les informations'}</button></form>`;document.body.append(d);
  d.querySelector('[data-close]').onclick=()=>d.remove();d.oncancel=()=>d.remove();const f=d.querySelector('form'),photo=bindArticleForm(f,a.photo||'',{getRepositories:()=>readAll().repositories||getRepositories(),ui});
+ observeEditor(f);
  f.onsubmit=async e=>{e.preventDefault();const b=f.querySelector('[data-submit]');if(b.disabled)return;b.disabled=true;try{if(blocked())throw Error('Écriture bloquée pour préserver les données illisibles.');const p=Object.fromEntries(new FormData(f)),r=await transact(data=>{data.repositories??=getRepositories();data.preferences??=preferences();data.operations??=operations();return isNew?createArticle(data,a,p,f,photo()):saveArticle(data,a.id,p,f,photo());});onUpdate(r.data);d.remove();window.dispatchEvent(new CustomEvent('vsv-references-updated'));onSaved(structuredClone(r.result));}catch(error){f.querySelector('[data-status]').textContent='Non enregistré : '+error.message;b.disabled=false;}};d.showModal();return d;
 }

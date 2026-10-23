@@ -6,5 +6,5 @@ export async function flushWrites(){while(pending.size)await Promise.allSettled(
 export const pinDocument=(kind,id)=>current?.pin(kind,id);
 
 const dirtyEditors=new Set();
-export function markDraft(kind,dirty){dirty?dirtyEditors.add(kind):dirtyEditors.delete(kind);}
+export function markDraft(kind,dirty){dirty?dirtyEditors.add(kind):dirtyEditors.delete(kind);current?.notifyDraftState?.();}
 export const hasDrafts=()=>dirtyEditors.size>0;
