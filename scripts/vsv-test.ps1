@@ -4,7 +4,7 @@ $ErrorActionPreference='Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 $ref='grgvwyedfrxnwhgdqpoj'
 $branch=(git branch --show-current).Trim()
-if ($LASTEXITCODE -ne 0 -or !$branch -or $branch -eq 'main') { throw 'Utilisez une branche de travail, jamais main.' }
+if ($LASTEXITCODE -ne 0 -or $branch -ne 'feature/hub-associatif-test') { throw 'Utilisez exclusivement feature/hub-associatif-test.' }
 $env:VSV_BUILD_TARGET='test'
 $env:VSV_SUPABASE_URL="https://$ref.supabase.co"
 $env:VSV_SITE_URL='https://vsv-test.pages.dev/'

@@ -1,3 +1,4 @@
-import {usesShared} from './shared/config.js';
+const bootHash=location.hash;window.addEventListener('hashchange',()=>{if(location.hash.startsWith('#rsvp/')&&location.hash!==bootHash)location.reload();});
+import {usesShared,validDeployment} from './shared/config.js';
 import {startApplication} from './app.js';
-if(location.hash.startsWith('#rsvp/')){const {startRsvp}=await import('./rsvp-ui.js');await startRsvp(location.hash.slice(6));}else if(usesShared()){const {startShared}=await import('./shared/auth-ui.js');await startShared(startApplication);}else startApplication();
+if(usesShared()&&!validDeployment()){document.querySelector('#app').innerHTML='<section class="panel"><h1>Configuration de ce site à vérifier</h1><p>Ce paquet ne correspond pas à cette adresse. Ne vous connectez pas : reconstruisez la version VSV-TEST avec sa configuration et utilisez https://vsv-test.pages.dev/.</p></section>';document.querySelector('#main-navigation').hidden=true;document.querySelector('#menu-toggle').hidden=true;}else if(location.hash.startsWith('#rsvp/')){const {startRsvp}=await import('./rsvp-ui.js');await startRsvp(location.hash.slice(6));}else if(usesShared()){const {startShared}=await import('./shared/auth-ui.js');await startShared(startApplication);}else startApplication();

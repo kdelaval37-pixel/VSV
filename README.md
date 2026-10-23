@@ -341,3 +341,9 @@ Suivi, dépendances et état des lots : [docs/hub/SUIVI.md](docs/hub/SUIVI.md).
 Premier lot : fiabilité des imports d’adhérents et commandes de test protégées.
 Installation Windows, migrations/API/site séparés et retour arrière : [docs/hub/VSV-TEST.md](docs/hub/VSV-TEST.md).
 La branche `feature/hub-associatif-test` n’est pas destinée à une fusion automatique dans main.
+
+### Livraison intégrée VSV-TEST
+
+La méthode par petites installations est remplacée par une mise à jour globale : [guide unique](docs/hub/LIVRAISON-GLOBALE.md), [état des fonctions et limites](docs/hub/ETAT-INTEGRE.md).
+
+Validation autonome : `npm test`, `npm run test:sql` (PostgreSQL jetable/Docker), `npm run test:hub:browser` (Chromium installé, Auth/API simulés). Aucun de ces tests ne déploie en production.

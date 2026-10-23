@@ -5,7 +5,7 @@ alter table public.vsv_documents add constraint vsv_documents_kind_check check(k
 -- Les préférences personnelles sont liées à leur compte, pas aux catégories Paheko.
 create function public.vsv_hub_owner_guard() returns trigger language plpgsql set search_path='' as $$
 begin
- if new.kind='hub' and not new.deleted and new.payload->>'type'='personal' and (new.id<>'prefs_'||new.updated_by::text or new.payload->>'ownerId'<>new.updated_by::text) then raise exception 'Préférences d’un autre compte interdites';end if;
+ if new.kind='hub' and not new.deleted and new.payload->>'type'='personal' and (new.updated_by is null or new.id<>'prefs_'||new.updated_by::text or new.payload->>'ownerId'<>new.updated_by::text) then raise exception 'Préférences d’un autre compte interdites';end if;
  return new;
 end$$;
 create trigger vsv_hub_owner before insert or update on public.vsv_documents for each row execute function public.vsv_hub_owner_guard();
