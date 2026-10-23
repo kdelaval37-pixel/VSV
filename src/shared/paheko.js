@@ -2,27 +2,28 @@
 import {parseCsv,detectSeparator,decodeCsv,isPaheko} from '../csv.js';
 import {pahekoId} from '../member-identity.js';
 
-const TEST='https://grgvwyedfrxnwhgdqpoj.supabase.co';
+import {connectorTarget} from './connector-target.js';
 const MAX_BYTES=20000000, MAX_ROWS=50000;
 const quote=value=>'"'+value.replaceAll('"','""')+'"';
 
 export function pahekoConnector({env,fetcher=fetch}){
- const ready=()=>env('SUPABASE_URL')===TEST&&!!env('VSV_PAHEKO_TEST_HOST')&&
-   !!(env('VSV_PAHEKO_TEST_CATEGORY_IDS')||env('VSV_PAHEKO_TEST_CSV_URL'));
+ const target=connectorTarget(env),setting=name=>env(target.pahekoPrefix+name);
+ const ready=()=>target.enabled&&!!setting('HOST')&&
+   !!(setting('CATEGORY_IDS')||setting('CSV_URL'));
 
  async function preview(){
-  if(!ready())throw Error('Source Paheko TEST non configurée.');
-  const host=env('VSV_PAHEKO_TEST_HOST');
+  if(!ready())throw Error('Source Paheko non configurée pour cet environnement.');
+  const host=setting('HOST');
   // Un nom DNS public exact, sans protocole, port, chemin ou adresse IP.
   if(!/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,63}$/.test(host)||host.endsWith('.localhost')||host.endsWith('.local'))throw Error('Hôte Paheko non autorisé.');
-  const idsText=env('VSV_PAHEKO_TEST_CATEGORY_IDS');
+  const idsText=setting('CATEGORY_IDS');
   let ids=[];
   if(idsText){
    ids=idsText.split(',').map(x=>x.trim());
    if(ids.length>20||ids.some(x=>!(/^[1-9]\d{0,8}$/).test(x))||new Set(ids).size!==ids.length)throw Error('Catégories Paheko invalides : numéros distincts séparés par des virgules (20 maximum).');
-   if(!env('VSV_PAHEKO_TEST_AUTHORIZATION'))throw Error('Autorisation API Paheko manquante.');
+   if(!setting('AUTHORIZATION'))throw Error('Autorisation API Paheko manquante.');
   }
-  const urls=ids.length?ids.map(id=>`https://${host}/api/user/category/${id}.csv`):[env('VSV_PAHEKO_TEST_CSV_URL')];
+  const urls=ids.length?ids.map(id=>`https://${host}/api/user/category/${id}.csv`):[setting('CSV_URL')];
   // Valider toutes les destinations avant de transmettre les identifiants.
   for(const url of urls){const u=new URL(url);if(u.protocol!=='https:'||u.hostname!==host||u.port||u.username||u.password||u.hash)throw Error('Source Paheko non autorisée.');}
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);
@@ -32,7 +33,7 @@ export function pahekoConnector({env,fetcher=fetch}){
    for(let i=0;i<urls.length;i++){
     const label=ids[i]?`catégorie ${ids[i]}`:'export';
     let response;
-    try{response=await fetcher(urls[i],{method:'GET',headers:env('VSV_PAHEKO_TEST_AUTHORIZATION')?{Authorization:env('VSV_PAHEKO_TEST_AUTHORIZATION')}:{},redirect:'error',signal:controller.signal});}
+    try{response=await fetcher(urls[i],{method:'GET',headers:setting('AUTHORIZATION')?{Authorization:setting('AUTHORIZATION')}:{},redirect:'error',signal:controller.signal});}
     catch{throw Error(`Lecture Paheko interrompue (${label}). Aucun import partiel : réessayez la récupération complète.`);}
     if(!response.ok)throw Error(`Lecture Paheko refusée (${label}, HTTP ${response.status}). Aucun import partiel.`);
     if(Number(response.headers.get('content-length'))>MAX_BYTES-byteCount){await response.body?.cancel();throw Error('Export Paheko trop volumineux (20 Mo au total).');}

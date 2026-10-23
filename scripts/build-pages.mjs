@@ -7,6 +7,7 @@ import {build} from 'esbuild';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 await rm('dist',{recursive:true,force:true});await mkdir('dist',{recursive:true});await cp(process.env.VSV_MAINTENANCE==='1'?'maintenance.html':'index.html','dist/index.html');await cp('src','dist/src',{recursive:true,filter:p=>!['server.js','engine.js','connectors.js','google-oauth.js','rsvp.js','member-guards.js'].some(name=>p.endsWith('/shared/'+name))});await cp('_headers','dist/_headers');
+await writeFile('dist/_headers',(await readFile('dist/_headers','utf8')).replace('camera=()','camera=(self)').replace("object-src 'none'","media-src 'self' blob:; object-src 'none'"));
 console.log('Sources copiées ; compilation du paquet en cours.');
 // VSV-TEST : configuration publique explicite ; aucune retombée sur la production.
 if(process.env.VSV_BUILD_TARGET==='test'){
