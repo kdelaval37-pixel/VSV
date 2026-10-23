@@ -148,7 +148,7 @@ Le statut « travail intégré non encore livré » ci-dessus décrit une étape
 
 ### Résultats finaux de la validation locale intégrée
 
-- **187 tests Node réussis**, aucun échec. Nouveaux tests : hub partagé, préférences individuelles, versions de bibliothèque, routes, calendrier/ICS, créneaux, période/retour matériel, prochaine édition, RSVP, confidentialité, file Gmail simulée et OAuth simulé/chiffrement.
+- **188 tests Node réussis**, aucun échec. Nouveaux tests : hub partagé, préférences individuelles, versions de bibliothèque, routes, calendrier/ICS, créneaux, période/retour matériel, prochaine édition, RSVP, confidentialité, file Gmail simulée et OAuth simulé/chiffrement.
 - **SQL groupé exécuté réellement deux fois sur PostgreSQL 17 jetable** : six migrations, détection déjà installé, RLS/Storage/Realtime, jetons privés, RSVP atomique/idempotent, permission et prise unique d’un envoi, refus de renvoi incertain. Les tests historiques de concurrence sur dernier article, réimport Paheko et tombstones passent aussi. Aucune migration distante effectuée.
 - **Parcours navigateur intégrés réussis** : mauvais ciblage bloqué avant connexion (aucune requête production), tâche/rechargement/lien, agenda/ICS, partenaires, recherche/favoris/raccourcis, équipes/multi-sélection/inscription, dossier/prochaine édition, modes clair/sombre et 1440/768/390 px, clavier/Échap/focus, scanner indisponible avec alternative manuelle, imports/annulation/réimports, documents/PDF, caisse/stocks/concurrence, présence effective de deux comptes simulés, conflits et rechargement dans le bon document.
 - Nouveaux écrans partagés : tâche A→B, reprise réelle de copie de travail du hub, prise en charge d’une course et justificatif sans entrée de stock, lien RSVP lu sans mutation puis confirmé, fichier confidentiel téléchargé par l’administrateur et invisible pour B, sauvegarde V12 réellement téléchargée avec les deux espaces de fichiers puis restauration simulée sans rejeu. Les liens RSVP actifs et secrets sont absents de l’export.
@@ -160,3 +160,5 @@ Ces essais utilisent des données fictives. API/Auth/Realtime/Storage/Google/Pah
 ### Limites restantes regroupées
 
 La version hébergée n’est pas mise à jour ici, faute d’accès et du fait du refus HTTP vers VSV-TEST. Les réglages Google/Paheko et accès de déploiement sont regroupés dans le guide global, à saisir exclusivement dans leurs interfaces sécurisées. API Paheko native/pagination, automatisation planifiée et notifications externes restent non activées avant documentation/accès et essais réels. Les réservations datées restent conservatrices ; pas de caisse hors ligne ni de partage de documents par sous-groupe arbitraire. Voir ETAT-INTEGRE.md pour ne pas confondre ces limites avec des fonctions livrées.
+
+Dernier contrôle du dossier projet : les réceptions réparties entre plusieurs projets sont comptées par leurs affectations, une seule fois par réception. Test fictif dédié, historique inchangé.

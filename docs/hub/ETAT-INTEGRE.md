@@ -41,4 +41,4 @@ Le guide unique est [LIVRAISON-GLOBALE.md](LIVRAISON-GLOBALE.md) : préparation,
 
 ## Validation enregistrée
 
-187 tests Node réussis ; six migrations groupées exécutées deux fois sur PostgreSQL 17 jetable ; suite navigateur intégrée réussie, y compris restauration V12 et téléchargements réels depuis le Storage simulé. OAuth Google et source Paheko testés avec transports simulés uniquement. Contrôle Deno et construction TEST réussis. Le suivi détaillé et les captures sont dans SUIVI.md et integration-captures/. Aucun nouveau test hébergé annoncé.
+188 tests Node réussis ; six migrations groupées exécutées deux fois sur PostgreSQL 17 jetable ; suite navigateur intégrée réussie, y compris restauration V12 et téléchargements réels depuis le Storage simulé. OAuth Google et source Paheko testés avec transports simulés uniquement. Contrôle Deno et construction TEST réussis. Le suivi détaillé et les captures sont dans SUIVI.md et integration-captures/. Aucun nouveau test hébergé annoncé.
