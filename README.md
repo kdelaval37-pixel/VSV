@@ -334,3 +334,10 @@ Le menu regroupe AG, Réunion, Projet et Gestion. Les convocations d’AG (dont 
 ### Protection des identités Paheko
 
 Le correctif `fix/doublons-adherents` conserve les UUID lors des mises à jour CSV, distingue les fiches inchangées et revérifie l’import côté serveur. Une migration SQL ajoute l’unicité des numéros non vides et protège les suppressions logiques ; elle ne nettoie ni ne restaure de fiche. Les anciennes sauvegardes contenant des doublons sont refusées explicitement. [Diagnostic, vérifications et installation VSV-TEST](docs/DOUBLONS-ADHERENTS.md).
+
+## Évolution vers le hub associatif — VSV-TEST
+
+Suivi, dépendances et état des lots : [docs/hub/SUIVI.md](docs/hub/SUIVI.md).
+Premier lot : fiabilité des imports d’adhérents et commandes de test protégées.
+Installation Windows, migrations/API/site séparés et retour arrière : [docs/hub/VSV-TEST.md](docs/hub/VSV-TEST.md).
+La branche `feature/hub-associatif-test` n’est pas destinée à une fusion automatique dans main.

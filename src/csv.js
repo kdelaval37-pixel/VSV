@@ -54,7 +54,7 @@ export function previewMemberImport(repo,rows,mapping,decisions={}){
  return entries;
 }
 export function memberPatch(target,patch){const next={...target,...patch,id:target.id};if(!patch.externalId)next.externalId=target.externalId;if(patch.category!==undefined&&!patch.category.trim())next.category=target.category;if(patch.activity==='unknown'&&target.archived){next.archived=true;next.activity=target.activity??'archived';}if(patch.dues==='unknown')next.dues=target.dues;if(patch.expires==='')next.expires=target.expires;return next;}
-export const memberImportSummary=entries=>({created:entries.filter(e=>e.mode==='create'&&!e.errors.length).length,updated:entries.filter(e=>e.mode==='update'&&!e.errors.length).length,unchanged:entries.filter(e=>e.mode==='unchanged'&&!e.errors.length).length,ambiguous:entries.filter(e=>e.mode==='ambiguous').length,invalid:entries.filter(e=>e.errors.length).length});
+export const memberImportSummary=entries=>({created:entries.filter(e=>e.mode==='create'&&!e.errors.length).length,updated:entries.filter(e=>e.mode==='update'&&!e.errors.length).length,unchanged:entries.filter(e=>e.mode==='unchanged'&&!e.errors.length).length,ambiguous:entries.filter(e=>e.mode==='ambiguous').length,invalid:entries.filter(e=>e.errors.length).length,ignored:entries.filter(e=>e.errors.length||e.mode==='skip').length});
 export function applyMemberImport(repo,entries,file){
  if(entries.some(e=>e.mode==='ambiguous'))throw Error('Résolvez les rapprochements ambigus ou ignorez les lignes concernées.');
  assertMemberUniqueness(repo.members);
