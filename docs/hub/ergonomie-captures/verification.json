@@ -1,0 +1,167 @@
+{
+  "services": "Auth, Supabase et Gmail simulés ; aucun envoi réel",
+  "screens": [
+    "message-1440-light.png",
+    "message-1440-dark.png",
+    "message-390-light.png",
+    "message-390-dark.png"
+  ],
+  "send": {
+    "direct": true,
+    "requests": 1,
+    "html": "<span style=\"font-weight: bold\"><span style=\"color: #123456\"><span style=\"color: #123456\">Bonjour les bénévoles !</span></span></span><p></p>",
+    "memberWithoutPermissionBlocked": true
+  },
+  "appearance": {
+    "isolated": true,
+    "memberCanChange": true
+  },
+  "autosave": {
+    "grouped": true,
+    "explicitSave": true,
+    "newerDraftPreserved": true
+  },
+  "routes": [
+    {
+      "role": "admin",
+      "route": "home"
+    },
+    {
+      "role": "admin",
+      "route": "convocations"
+    },
+    {
+      "role": "admin",
+      "route": "pvs"
+    },
+    {
+      "role": "admin",
+      "route": "invitations"
+    },
+    {
+      "role": "admin",
+      "route": "meetings"
+    },
+    {
+      "role": "admin",
+      "route": "projects"
+    },
+    {
+      "role": "admin",
+      "route": "reviews"
+    },
+    {
+      "role": "admin",
+      "route": "stocks"
+    },
+    {
+      "role": "admin",
+      "route": "cash"
+    },
+    {
+      "role": "admin",
+      "route": "shopping"
+    },
+    {
+      "role": "admin",
+      "route": "association"
+    },
+    {
+      "role": "admin",
+      "route": "teams"
+    },
+    {
+      "role": "admin",
+      "route": "agenda"
+    },
+    {
+      "role": "admin",
+      "route": "tasks"
+    },
+    {
+      "role": "admin",
+      "route": "communication"
+    },
+    {
+      "role": "admin",
+      "route": "settings"
+    },
+    {
+      "role": "adhérent",
+      "route": "home"
+    },
+    {
+      "role": "adhérent",
+      "route": "convocations"
+    },
+    {
+      "role": "adhérent",
+      "route": "pvs"
+    },
+    {
+      "role": "adhérent",
+      "route": "invitations"
+    },
+    {
+      "role": "adhérent",
+      "route": "meetings"
+    },
+    {
+      "role": "adhérent",
+      "route": "projects"
+    },
+    {
+      "role": "adhérent",
+      "route": "reviews"
+    },
+    {
+      "role": "adhérent",
+      "route": "stocks"
+    },
+    {
+      "role": "adhérent",
+      "route": "cash"
+    },
+    {
+      "role": "adhérent",
+      "route": "shopping"
+    },
+    {
+      "role": "adhérent",
+      "route": "association"
+    },
+    {
+      "role": "adhérent",
+      "route": "teams"
+    },
+    {
+      "role": "adhérent",
+      "route": "agenda"
+    },
+    {
+      "role": "adhérent",
+      "route": "tasks"
+    },
+    {
+      "role": "adhérent",
+      "route": "communication"
+    },
+    {
+      "role": "adhérent",
+      "route": "settings"
+    }
+  ],
+  "menu": [
+    "Accueil",
+    "AG",
+    "Réunion",
+    "Projet",
+    "Gestion",
+    "Vie associative",
+    "Agenda",
+    "Tâches et décisions",
+    "Communication",
+    "Paramètres"
+  ],
+  "errors": []
+}
