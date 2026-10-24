@@ -90,3 +90,19 @@
  @media(max-width:650px){body>header{flex-direction:row;align-items:center;padding:12px 16px}body>header .brand{gap:10px}body>header .brand img{width:48px;height:48px;border-radius:12px}body>header strong{font-size:23px}body>header .brand>div>span{font-size:10px}body>header>p{display:none}.app-layout main{padding:18px 14px 32px}.menu-bar{padding:7px 14px}.welcome{padding:24px}.welcome h1{font-size:32px}.panel,.card,.category-card.available,.hub-home{padding:20px;border-radius:18px}.toolbar{padding:14px}.toolbar label{min-width:0;max-width:none}.hub-overview>section{padding:16px}.home-stats{grid-template-columns:1fr}.home-stats>div{display:flex;align-items:center;gap:16px}.home-stats strong{font-size:28px}.sidebar button{display:flex}.heading .actions{width:100%}.heading .actions button{flex:1 1 auto}.hub-home>.heading a{display:block}.grid{gap:18px}dialog,.reference-dialog,.shared-dialog{border-radius:18px;max-width:calc(100vw - 20px)}.line{padding:12px;border-radius:12px}.version-panel strong{overflow-wrap:anywhere}}
  @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 }
+
+/* Clear navigation groups and an uncluttered, full-width mail composer. */
+@media screen {
+ .sidebar .nav-group>summary{display:flex;align-items:center;gap:10px;font-weight:750;color:var(--text)}
+ .sidebar .nav-group>summary .nav-icon{color:var(--primary-ink);width:24px;height:24px;stroke-width:2.3;opacity:1}
+ .mail-toolbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border:1px solid var(--primary-border);border-radius:12px 12px 0 0;padding:10px;background:var(--surface-soft)}
+ .mail-toolbar label{display:flex;align-items:center;gap:6px;margin:0;font-size:14px}
+ .mail-toolbar button{min-height:40px;padding:8px 12px}.mail-toolbar select{width:80px}.mail-toolbar input[type=color]{width:48px;height:40px;padding:3px}
+ .mail-editor{min-height:320px;padding:20px;border:1px solid var(--primary-border);border-top:0;border-radius:0 0 12px 12px;background:#fff;color:#29343a;font-size:16px;line-height:1.6;overflow:auto;overflow-wrap:anywhere}
+ .mail-editor:focus-visible{outline:3px solid var(--primary-focus);outline-offset:2px}.mail-editor table{max-width:100%}.mail-editor td{min-width:45px}
+ .mail-send-bar{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin:20px 0}.mail-send-bar p{flex-basis:100%}.mail-send-button{font-size:18px;font-weight:750;padding:16px 40px;min-width:220px}
+ [data-member-tags]{padding:12px;background:var(--surface-soft);border-radius:10px;overflow-wrap:anywhere}
+ [data-file-label]>span{display:block;margin:8px 0}
+}
+
+@media screen{[data-member-tags]:empty{display:none}.mail-toolbar button{box-shadow:none}}

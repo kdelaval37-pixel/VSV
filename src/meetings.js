@@ -1,3 +1,4 @@
+import {documentAutosave} from './shared/autosave.js';
 import {mountNoticeSource} from './notice-source-ui.js';
 import {shared,flushWrites,pinDocument,markDraft} from './shared/runtime.js';
 import {meeting,participant,point,action,meetingFields,pointStatuses,duplicateMeeting,movePoint,participantConflicts,validateMeeting,validatePublication,unresolvedNotes,pendingPoints,hasNotes} from './meeting-model.js';
@@ -13,7 +14,8 @@ export function createMeetingModule({app,getMeetings,persist,blocked,navigation,
   function feedbackMarkup(){return `<p id="feedback" role="status" aria-live="polite" class="${feedbackError?'error':'success'}">${esc(lastFeedback)}</p>`;}
   async function store(next){try{if(blocked())throw Error('Les données existantes sont illisibles. Elles sont préservées ; aucune écriture possible.');await persist(next);return true;}catch(e){feedback('Échec de l’enregistrement. Les changements ne sont pas sauvegardés. '+e.message+' Réessayez ou téléchargez une sauvegarde JSON.',true);return false;}}
   let saveVersion=0;
- async function save(){const ticket=++saveVersion;
+ const autosave=documentAutosave({kind:'meetings',getDocument:()=>current,save:()=>save(),changed:()=>{dirty=true;saveVersion++;feedback('Modifications en cours — sauvegarde après 4 secondes de pause.');}});
+ async function save(){autosave.cancel();const ticket=++saveVersion;
     dirty=true;markDraft('meetings',true);if(shared())feedback('Enregistrement…');
     try{
       validateMeeting(current);
@@ -24,7 +26,7 @@ export function createMeetingModule({app,getMeetings,persist,blocked,navigation,
     updateIndicators();return !dirty;
   }
   function leave(){return !dirty||confirm('Ce compte rendu contient des changements non sauvegardés. Quitter et les perdre ?');}
-  function clear(){current=null;dirty=false;markDraft('meetings',false);lastFeedback='';feedbackError=false;}
+  function clear(){autosave.cancel();current=null;dirty=false;markDraft('meetings',false);lastFeedback='';feedbackError=false;}
   function list(){shared()?.releasePins();
     clear();navigation('meetings');
     app.innerHTML=`${notice}<div class="heading"><div><p class="eyebrow">Les échanges de l’association</p><h1>Comptes rendus</h1></div><button id="new-meeting" ${blocked()?'disabled':''}>Nouveau compte rendu</button></div><div class="toolbar"><label>Rechercher par titre<input type="search" id="meeting-search" value="${esc(query)}" placeholder="Titre de la réunion"></label><button class="secondary" id="export">Télécharger la sauvegarde JSON</button><label class="file">Importer une sauvegarde<input id="import" type="file" accept=".json,application/json" ${blocked()?'disabled':''}></label></div>${feedbackMarkup()}<div id="meeting-list"></div>`;
@@ -98,7 +100,7 @@ export function createMeetingModule({app,getMeetings,persist,blocked,navigation,
     else if(t.dataset.pointField){const p=findPoint(t.dataset.point);p[t.dataset.pointField]=t.dataset.pointField==='includeNotes'?t.value==='yes':t.value;}
     else if(t.dataset.actionField){const a=findPoint(t.dataset.point).actions.find(a=>a.id===t.dataset.actionId);a[t.dataset.actionField]=t.value;}
     else return;
-    save();
+    autosave.schedule();updateIndicators();
     if(t.dataset.pointField==='status'){const id=t.dataset.point;editor();const field=app.querySelector(`[data-point="${id}"][data-point-field="status"]`);field.focus({preventScroll:true});}
   }
   function addPerson(key){
